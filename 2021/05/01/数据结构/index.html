@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/dragon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/dragon_16.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="数据结构,算法," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="绪论0、基本知识点（1）数据结构是相互之间存在一种或多种特定关系的数据元素的集合。数据是由数据元素组成的，数据元素可以由若干个数据项组成，数据元素是数据的基本单位，数据项是数据的最小单位 （2）数据结构一般包括数据逻辑结构、数据存储结构和数据运算 3 个方面。数据运算分为抽象运算（运算功能描述）和运算实现两个层次 （3）数据的逻辑结构分为集合、线性结构、树形结构和图形结构，树形结构和图形结构统称为">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据结构笔记">
+<meta property="og:url" content="http://example.com/2021/05/01/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/index.html">
+<meta property="og:site_name" content="zhe&#39;s blog">
+<meta property="og:description" content="绪论0、基本知识点（1）数据结构是相互之间存在一种或多种特定关系的数据元素的集合。数据是由数据元素组成的，数据元素可以由若干个数据项组成，数据元素是数据的基本单位，数据项是数据的最小单位 （2）数据结构一般包括数据逻辑结构、数据存储结构和数据运算 3 个方面。数据运算分为抽象运算（运算功能描述）和运算实现两个层次 （3）数据的逻辑结构分为集合、线性结构、树形结构和图形结构，树形结构和图形结构统称为">
+<meta property="og:locale">
+<meta property="article:published_time" content="2021-05-01T01:41:00.000Z">
+<meta property="article:modified_time" content="2021-05-02T09:37:31.592Z">
+<meta property="article:author" content="zhe">
+<meta property="article:tag" content="数据结构">
+<meta property="article:tag" content="算法">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2021/05/01/数据结构/"/>
+
+
+
+
+
+  <title>数据结构笔记 | zhe's blog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">zhe's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">nice 2 meet u</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/05/01/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="zhe's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">数据结构笔记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-05-01T09:41:00+08:00">
+                2021-05-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%AE%97%E6%B3%95/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index">
+                    <span itemprop="name">基础知识</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="绪论"><a href="#绪论" class="headerlink" title="绪论"></a>绪论</h2><h3 id="0、基本知识点"><a href="#0、基本知识点" class="headerlink" title="0、基本知识点"></a>0、基本知识点</h3><p>（1）数据结构是相互之间存在一种或多种特定关系的数据元素的集合。数据是由数据元素组成的，数据元素可以由若干个数据项组成，数据元素是数据的基本单位，数据项是数据的最小单位</p>
+<p>（2）数据结构一般包括数据逻辑结构、数据存储结构和数据运算 3 个方面。数据运算分为抽象运算（运算功能描述）和运算实现两个层次</p>
+<p>（3）数据的逻辑结构分为集合、线性结构、树形结构和图形结构，树形结构和图形结构统称为非线性结构</p>
+<p>（4）数据的存储结构分为顺序存储结构、链式存储结构、索引存储结构和哈希（散列）存储结构</p>
+<p>（5）描述一个求解问题的抽象数据类型由数据逻辑结构和抽象运算两部分组成</p>
+<p>（6）算法是对特定问题求解步骤的一种描述，它是指令的有限序列。运算实现通过算法来表示，<strong>算法具有有穷性、确定性、可行性、输入和输出 5 个重要特征</strong>，<strong>算法满足有穷性，程序不一定满足有穷性</strong>。算法可以用计算机程序来描述，但并不是说任何算法必须用程序来描述</p>
+<h3 id="1、简述数据与数据元素之间的关系与区别"><a href="#1、简述数据与数据元素之间的关系与区别" class="headerlink" title="1、简述数据与数据元素之间的关系与区别"></a>1、简述数据与数据元素之间的关系与区别</h3><p>凡是能被计算机存储、加工的对象统称为数据，数据是一个集合。数据元素是数据的基本单位，是数据的个体。数据元素与数据之间的关系是元素与集合之间的关系</p>
+<h3 id="2、简述数据逻辑结构与存储结构的关系"><a href="#2、简述数据逻辑结构与存储结构的关系" class="headerlink" title="2、简述数据逻辑结构与存储结构的关系"></a>2、简述数据逻辑结构与存储结构的关系</h3><p>在数据结构中，逻辑结构与计算机无关，存储结构是数据元素之间的逻辑关系在计算机中的表示。存储结构不仅将逻辑结构中的所有数据元素存储到计算机内存中，而且还要在内存中存储个数据元素间的逻辑关系。通常情况下，一种逻辑结构可以有多种存储结构，例如线性结构可以采用顺序存储结构和链式存储结构来进行存储</p>
+<h3 id="3、简述数据结构中的运算描述和运算实现的异同"><a href="#3、简述数据结构中的运算描述和运算实现的异同" class="headerlink" title="3、简述数据结构中的运算描述和运算实现的异同"></a>3、简述数据结构中的运算描述和运算实现的异同</h3><p>运算描述是指逻辑结构施加的操作，而运算实现是指一个完成该运算功能的算法。他们的相同点是运算描述和运算实现都能完成对数据的“处理”或某种特定的操作，不同点是运算描述只是描述处理功能，不包括步骤和方法，而运算实现的核心目的是设计处理步骤</p>
+<h3 id="4、数据结构和数据类型有什么区别"><a href="#4、数据结构和数据类型有什么区别" class="headerlink" title="4、数据结构和数据类型有什么区别"></a>4、数据结构和数据类型有什么区别</h3><p>数据就够是相互之间存在一种或多种特定关系的数据元素的集合，一般包括三个方面的内容：<strong>数据的逻辑结构、存储结构和数据的运算</strong>。数据类型是一个值的集合和定义在这个值集上的一组运算的总称，比如C语言中的short int数据类型是由-32768~32767（16位机）的整数和加减乘除取模等运算构成的</p>
+<h3 id="5、在C-C-中提供了引用运算符，简述其在算法描述中的主要作用"><a href="#5、在C-C-中提供了引用运算符，简述其在算法描述中的主要作用" class="headerlink" title="5、在C/C++中提供了引用运算符，简述其在算法描述中的主要作用"></a>5、在C/C++中提供了引用运算符，简述其在算法描述中的主要作用</h3><p>在算法设计中，一个算法通常用一个或多个C/C++函数来实现，在C/C++函数之间传递参数有两种情况，一种是从实参到形参的单向值传递，二是实参和形参之间的双向值传递。对形参使用引用运算符即在形参名前面加上”&amp;”，不仅可以实现实参和形参之间的双向值传递，而且使算法设计简单明晰</p>
+<p>除此之外，在函数的互相调用（如递归算法）的过程中，使用引用型变量可以充当全局变量的职责</p>
+<h3 id="6、算法的时间复杂度反映的是算法的绝对执行时间吗？两个时间复杂度相同的算法，对于相同的问题规模n，它们的绝对执行时间一定相同吗？"><a href="#6、算法的时间复杂度反映的是算法的绝对执行时间吗？两个时间复杂度相同的算法，对于相同的问题规模n，它们的绝对执行时间一定相同吗？" class="headerlink" title="6、算法的时间复杂度反映的是算法的绝对执行时间吗？两个时间复杂度相同的算法，对于相同的问题规模n，它们的绝对执行时间一定相同吗？"></a>6、算法的时间复杂度反映的是算法的绝对执行时间吗？两个时间复杂度相同的算法，对于相同的问题规模n，它们的绝对执行时间一定相同吗？</h3><p>算法的时间复杂度反映的是算法执行时间的数量级，并不是指绝对执行时间，两个时间复杂度相同的算法，对于相同的问题规模n，它们的绝对执行时间也不一定相同</p>
+<h3 id="7、什么是语句频度？语句频度与时间复杂度有什么联系与区别"><a href="#7、什么是语句频度？语句频度与时间复杂度有什么联系与区别" class="headerlink" title="7、什么是语句频度？语句频度与时间复杂度有什么联系与区别"></a>7、什么是语句频度？语句频度与时间复杂度有什么联系与区别</h3><p>一个算法是由控制结构（顺序、循环和分支）和原操作（固有数据类型的操作）组成的，比如在以下算法中：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">fun</span><span class="params">(<span class="keyword">int</span> a[],<span class="keyword">int</span> n)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;					<span class="comment">//1</span></span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;n;i++)		<span class="comment">//2</span></span><br><span class="line">        a[i]=<span class="number">2</span>*i;			<span class="comment">//3</span></span><br><span class="line">   	<span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;n;i++)		<span class="comment">//4</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>,a[i]);	<span class="comment">//5</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);			<span class="comment">//6</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中语句1、3、5、6为原操作</p>
+<p>算法的执行时间取决于控制结构和原操作的综合效果，显然在一个算法中执行原操作的次数越少，其执行时间也就相对越少，执行原操作的次数越多，其执行时间也就相对越多，<strong>一个算法的执行时间可以由其中原操作的执行次数来计量</strong>，算法所有原操作的执行次数被称为语句频度，用T(n)表示</p>
+<p>例：分析以下算法的语句频度T(n)</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">matrixadd</span><span class="params">(<span class="keyword">int</span> n,<span class="keyword">int</span> A[<span class="number">20</span>][<span class="number">20</span>],<span class="keyword">int</span> B[<span class="number">20</span>][<span class="number">20</span>], <span class="keyword">int</span> C[<span class="number">20</span>][<span class="number">20</span>])</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i,j;</span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;n;i++)				<span class="comment">//语句1</span></span><br><span class="line">        <span class="keyword">for</span>(j=<span class="number">0</span>;j&lt;n;j++)			<span class="comment">//语句2</span></span><br><span class="line">            C[i][j]=A[i][j]+B[i][j];<span class="comment">//语句3</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>不考虑变量定义语句，该算法主要包括3个可执行语句，其中语句1循环控制变量<code>i</code>从0增加到<code>n</code>，当<code>i</code>与<code>n</code>相等时才会终止，所以语句1的频度为<code>n+1</code>，但是它对应的循环体（语句2、3）却只能执行<code>n</code>次</p>
+<p>语句2作为语句1循环体内的语句应该只执行<code>n</code>次，但是语句2本身也要执行<code>n+1</code>次，所以语句2的频度为<code>n(n+1)</code>，语句2对应的循环体（语句3）只能执行<code>n*n=n²</code>次</p>
+<p>所以语句3的频度为<code>n²</code></p>
+<p>所以：该算法中所有语句的频度之和为：<br>$$<br>T(n)=n+1+n(n+1)+n^2=2n^2+2n+1<br>$$<br>时间复杂度实际上是对语句频度的一种粗略估计，用于分析算法的时间增长趋势，简单来说，<strong>时间复杂度O(n)保留语句频度T(n)的最高次幂，并且把系数去掉</strong></p>
+<h2 id="线性表"><a href="#线性表" class="headerlink" title="线性表"></a>线性表</h2><h3 id="1、简述线性表的两种存储结构的主要特点"><a href="#1、简述线性表的两种存储结构的主要特点" class="headerlink" title="1、简述线性表的两种存储结构的主要特点"></a>1、简述线性表的两种存储结构的主要特点</h3><p>线性表的两种存储结构分别是顺序存储结构和链式存储结构</p>
+<p><strong>顺序存储结构</strong>的主要特点有：</p>
+<p>（1）数据元素中只有自身的数据域，没有关联指针域，因此顺序存储结构的存储密度较大</p>
+<p>（2）顺序存储结构需要分配一整块比较大的存储该空间，所以存储空间的利用率较低</p>
+<p>（3）逻辑上相邻的两个元素在物理上也是相邻的，通过元素的逻辑序号可以直接获取其元素值，即具有随机存取的特性</p>
+<p>（4）插入和删除操作会引起大量元素的移动</p>
+<p><strong>链式存储结构</strong>的主要特点有：</p>
+<p>（1）数据结点中除自身的数据域以外还有表示逻辑关系的指针域，因此链式存储结构比顺序存储结构的存储密度小</p>
+<p>（2）链式存储结构的每个结点是单独分配的，每个结点的存储空间相对较小，所以存储空间利用率较高</p>
+<p>（3）在逻辑上相邻的结点在物理上不一定相邻，因此不具有随机存取特性</p>
+<p>（4）插入和删除操作方便、灵活，不必移动结点，只需要修改结点中的指针域即可</p>
+<h3 id="2、简述单链表设置头结点的主要作用"><a href="#2、简述单链表设置头结点的主要作用" class="headerlink" title="2、简述单链表设置头结点的主要作用"></a>2、简述单链表设置头结点的主要作用</h3><p>（1）对于带头结点的单链表，在单链表的任何结点之前插入或删除结点，所要做的都是修改前一个结点的指针域，因此任何结点都有前驱结点（如果单链表没有头结点，则首结点没有前驱结点，在其插入和删除结点时操作复杂一些），所以算法设计方便</p>
+<p>（2）对于带头结点的单链表，在表空时也存在一个头结点，因此空表与非空表的处理是一致的</p>
+<h3 id="3、“线性表的顺序存储表示属于静态结构，而链式存储表示属于动态结构”这句话是否正确"><a href="#3、“线性表的顺序存储表示属于静态结构，而链式存储表示属于动态结构”这句话是否正确" class="headerlink" title="3、“线性表的顺序存储表示属于静态结构，而链式存储表示属于动态结构”这句话是否正确"></a>3、“线性表的顺序存储表示属于静态结构，而链式存储表示属于动态结构”这句话是否正确</h3><p>错误，所谓静态结构是采用固定大小的静态分配方式得到的结果，比如<code>int a[10]</code>，该语句就是一种静态分配方式。所谓动态结构就是采用动态分配方式得到的结果，比如<code>int *p;*p=(int *)malloc(n*sizeof(int))</code>语句就是一种动态分配方式，对于链式存储结构，通常采用动态分配方式，而对于顺序存储结构，既可以采用静态分配方式，也可以采用动态分配方式，只不过为了简单，通常是采用静态分配方式</p>
+<h2 id="栈和队列"><a href="#栈和队列" class="headerlink" title="栈和队列"></a>栈和队列</h2><h3 id="0、基本知识点-1"><a href="#0、基本知识点-1" class="headerlink" title="0、基本知识点"></a>0、基本知识点</h3><p>研究元素的进出栈序列个数：</p>
+<p><strong>n个不同元素通过一个栈所产生的出栈序列的个数为</strong><br>$$<br>\frac{1}{n+1}C^{n}_{2n}<br>$$<br><strong>证明略</strong></p>
+<p>接下来是有关的几道例题：</p>
+<p><strong>（1）如果元素的进栈序列为<code>1234</code>，能否得到<code>3142</code>的出栈序列？</strong></p>
+<p>为了让3作为第一个出栈的元素，必须1、2先进栈，3进栈后出栈，其中栈中从栈底到栈顶分别为1和2，4还未入栈，此时只有可能出现两种情况：一是栈顶的2出栈，二是4入栈后出栈，紧接着3出栈的不是4就是2，不可能是1，所以无法得到<code>3142</code>的出栈序列</p>
+<p><strong>（2）一个栈的进栈序列为<code>1、2、···n</code>通过一个栈可以得到出栈序列<code>p1、p2、···、pn</code>如果p1=3，则p2可能取值的个数是多少</strong></p>
+<p>因为p1=3，所以3是第一个出栈的元素，此时栈中从栈底到栈顶分别为1和2，而3之后的n-3个元素都还没有入栈，所以紧接着出栈的可以是当前栈顶的2，也有可能是之后的n-3个元素，所以p2可以取值的个数是n-2</p>
+<h3 id="1、在一个算法中需要建立多个栈时可以选用以下三种方案之一，试问这些方案相比各有什么优缺点？"><a href="#1、在一个算法中需要建立多个栈时可以选用以下三种方案之一，试问这些方案相比各有什么优缺点？" class="headerlink" title="1、在一个算法中需要建立多个栈时可以选用以下三种方案之一，试问这些方案相比各有什么优缺点？"></a>1、在一个算法中需要建立多个栈时可以选用以下三种方案之一，试问这些方案相比各有什么优缺点？</h3><p><strong>（1）分别用多个顺序存储空间建立多个独立的顺序栈</strong></p>
+<p><strong>优点</strong>：每个栈仅用一个顺序存储空间操作简单，而且几个栈之间不会相互影响</p>
+<p><strong>缺点</strong>：分配空间小了容易产生溢出，分配空间大了容易造成浪费，各个栈不能共享空间</p>
+<p><strong>（2）多个栈共享一个顺序存储空间</strong></p>
+<p><strong>优点</strong>：多个栈仅一个顺序存储空间，充分利用了存储空间，只有在整个存储空间都用完时才会产生溢出</p>
+<p><strong>缺点</strong>：当一个栈满时要向左、右查询有无空闲单元，如果有，需要移动元素和修改相关的栈底和栈顶指针。当接近栈满时要查询空闲单元、移动元素和修改栈底、栈顶指针，这一过程计算复杂且十分耗时</p>
+<p><strong>（3）分别建立多个独立的链栈</strong></p>
+<p><strong>优点</strong>：链栈一般不用考虑栈的溢出</p>
+<p><strong>缺点</strong>：栈中元素以指针相连接，比顺序存储多占用了存储空间</p>
+<h3 id="2、在以下几种存储结构中哪个最适合用作链栈？"><a href="#2、在以下几种存储结构中哪个最适合用作链栈？" class="headerlink" title="2、在以下几种存储结构中哪个最适合用作链栈？"></a>2、在以下几种存储结构中哪个最适合用作链栈？</h3><p><strong>（1）带头结点的单链表（2）不带头结点的循环单链表（3）带头结点的双链表</strong></p>
+<p>栈中元素之间的逻辑关系属于线性关系，可以采用单链表、循环单链表和双链表之一来进行存储，而栈的主要运算是<strong>进栈和出栈</strong>，所以我们在研究某种存储结构是否适合用来做栈，实际上应该考察的是使用这些存储结构来解决<strong>进栈和出栈</strong>问题的复杂度</p>
+<p><strong>（1）使用带头结点的单链表时</strong>，前端作为栈顶，进栈和出栈的时间复杂度为O(1)</p>
+<p>（2）使用不带头结点的循环单链表时，前端作为栈顶，当进行进栈和出栈操作的时候首元结点发生了变化，需要找到尾结点将其next指针指向新的首元结点，进栈和出栈的时间复杂度为O(n)</p>
+<p>（<strong>3）使用带头结点的双链表时</strong>，将前端作为栈顶，进栈和出栈的时间复杂度为O(1)</p>
+<p>就此来看，首先将方案（2）排除，接下来继续对方案（1）（3）进行比较：</p>
+<p>因为方案（1）的单链表的存储密度更高，而且在进栈和出栈操作时，语句频度更低，会更加节省时间，所以选择<strong>带头结点的单链表</strong></p>
+<h3 id="3、什么是队列的上溢现象和假溢出现象，解决假溢出有什么方法？"><a href="#3、什么是队列的上溢现象和假溢出现象，解决假溢出有什么方法？" class="headerlink" title="3、什么是队列的上溢现象和假溢出现象，解决假溢出有什么方法？"></a>3、什么是队列的上溢现象和假溢出现象，解决假溢出有什么方法？</h3><p>在队列的顺序存储结构中，设队头指针为front，队尾指针为rear，队的容量（存储空间的大小）为MaxSize，当有元素进队时，若rear=MaxSize（初始时rear=0），则发生队列的上溢现象，此时不能继续进队。所谓队列假溢出现象是指队列中还有剩余空间但元素并不能进入队列，造成这种现象的原因是队列的设计不合理</p>
+<p>解决队列假溢出的方法：</p>
+<p><strong>（1）建立一个足够大的储存空间</strong></p>
+<p><strong>（2）采用平移元素的方法</strong>，每当进队一个元素，队列中已有的元素向队头移动一个位置（如果有空闲的空间的话），这种方法所对应的运算的时间复杂度为O(n)。或者每当出队一个元素时，依次移动队中的元素，始终使front指针只想队列中的第一个元素位置，这种方法所对应的出队运算的时间复杂度为O(n)</p>
+<p><strong>（3）采用环形队列</strong>，把队列看成一个首尾相接的环形队列，在环形队列上进行进队或出队运算时仍然遵守“先进先出”原则，该方法所对应的进队和出队运算的时间复杂度均为O(1)，在环形队列中，队首指针和队尾指针的自增运算改为自增后模MaxSize</p>
+<h2 id="串"><a href="#串" class="headerlink" title="串"></a>串</h2><h3 id="0、基础知识"><a href="#0、基础知识" class="headerlink" title="0、基础知识"></a>0、基础知识</h3><p>（1）串是若干个字符的有限序列，空串是长度为0的串，可以看作是一种特殊的线性表，其逻辑关系为线性关系</p>
+<p>（2）串的长度是指串中所含字符的个数</p>
+<p><strong>（3）含n个不同字符的串的子串个数为n(n+1)/2+1</strong></p>
+<p>（4）串有顺序串和链串两种存储结构，顺序串的算法设计和顺序表类似，链串的算法设计和单链表类似</p>
+<p><strong>（5）一个串中任意个连续字符组成的序列称为该串的子串，字符串本身是自己的子串，空串是任何串的子串</strong></p>
+<p>（6）在串匹配中一般将主串称为目标串，子串称为模式串</p>
+<p>（7）BF模式匹配算法中需要回溯，（平均）时间复杂度为O(m*n)，而KMP算法消除了回溯，（平均）时间复杂度为O(m+n)</p>
+<h3 id="1、串是一种特殊的线性表，请从存储和运算两方面分析它的特殊之处"><a href="#1、串是一种特殊的线性表，请从存储和运算两方面分析它的特殊之处" class="headerlink" title="1、串是一种特殊的线性表，请从存储和运算两方面分析它的特殊之处"></a>1、串是一种特殊的线性表，请从存储和运算两方面分析它的特殊之处</h3><p>从存储方面看，串中每个元素是单个字符，在设计串存储结构时可以每个存储单元或者结点只储存一个字符。从运算方面看，串有连接、判断相等、求子串和子串替换等基本运算，这是线性表的基本运算所没有的</p>
+<h3 id="2、为什么在模式匹配中BF算法是有回溯算法，而KMP是无回溯算法？"><a href="#2、为什么在模式匹配中BF算法是有回溯算法，而KMP是无回溯算法？" class="headerlink" title="2、为什么在模式匹配中BF算法是有回溯算法，而KMP是无回溯算法？"></a>2、为什么在模式匹配中BF算法是有回溯算法，而KMP是无回溯算法？</h3><p>设目标串为<code>s</code>，模式串为<code>t</code></p>
+<p>在BF算法的匹配过程中，当<code>t[j]</code>与<code>s[i]</code>失配，置<code>i</code>=<code>i</code>-<code>j</code>+1，<code>j</code>=0，从中看到，一旦两个字符不等，目标串指针<code>i</code>会回退，所以BF算法是有回溯算法</p>
+<p>在KMP算法的匹配过程中，当<code>t[j]</code>与<code>s[i]</code>匹配，将<code>i</code>与<code>j</code>分别自增，当<code>t[j]</code>与<code>s[i]</code>失配，<code>i</code>不变，置<code>j</code>=<code>next[j]</code>，从中看到，目标串指针<code>i</code>不会回退，只会保持位置不变或者向前推进，所以KMP算法是无回溯算法</p>
+<h3 id="3、在KMP算法中计算模式串的next值时，在j-0时，为什么要置next-0-1"><a href="#3、在KMP算法中计算模式串的next值时，在j-0时，为什么要置next-0-1" class="headerlink" title="3、在KMP算法中计算模式串的next值时，在j=0时，为什么要置next[0]=-1"></a>3、在KMP算法中计算模式串的next值时，在<code>j</code>=0时，为什么要置<code>next[0]</code>=-1</h3><p>首先我们需要明确，next数组的具体含义是什么？</p>
+<p>next数组的具体含义为：<code>next[j]</code>表示模式串中<code>t[j]</code>之前的子串<code>t[0~j-1]</code>，前缀和后缀相等的最长前后缀长度</p>
+<p>当模式串中的<code>t[0]</code>与目标串中的某一位失配时，说明模式串中已经没有字符可以和目标串中的该位比较（第一位就失配，之后的自然不用考虑），这时候应该将模式串的第一位与目标串中的下一位进行比较，需要令<code>next[0]</code>=-1，用-1这个特殊值来标志这一特殊情况，如果<code>next[0]</code>为0或者其他正整数，就会进行<code>s[i]</code>与<code>t[next[j]]</code>的匹配，实际上陷入了死循环</p>
+<h2 id="递归"><a href="#递归" class="headerlink" title="递归"></a>递归</h2><h3 id="0、基础知识-1"><a href="#0、基础知识-1" class="headerlink" title="0、基础知识"></a>0、基础知识</h3><p>（1）递归分为直接递归（调用自身）和间接递归（调用另一个调用自己的函数），间接递归算法都可以转化为直接递归算法来实现，如果一个递归过程或递归函数中的递归调用语句是最后一条执行语句，则称这种递归调用为尾递归</p>
+<p>（2）递归模型由递归出口和递归体两部分构成。递归出口确定递归到何时结束，而递归体确定递归求解时的递推关系</p>
+<p>（3）递归思路的本质是把一个不能或不好直接求解的“大问题”转化为一个或几个“小问题”来解决</p>
+<p>（4）函数调用在内存中实际上是通过栈来实现，用于保存返回地址、函数实参和局部变量等</p>
+<p>（5）一般情况下，尾递归算法可以通过循环或者迭代方式转换为等价的非递归算法，对于不是尾递归的复杂递归算法，可以用栈来模拟递归执行过程，从而将其转换为等价的非递归算法</p>
+<p>（6）获取递归模型通常分为三个步骤，即分析问题、提取递归体和提取递归出口，在实际中需要根据求解问题来操作</p>
+<h3 id="1、栈帧"><a href="#1、栈帧" class="headerlink" title="1、栈帧"></a>1、栈帧</h3><p>大多数CPU上的程序实现使用栈来支持函数调用操作，单个函数调用操作所使用的函数调用栈被称为<strong>栈帧</strong>结构。每次函数调用时都会相应地创建一帧，保存返回地址，函数实参和局部变量值等，并将该帧压入调用栈，如果在该函数返回之前又发生了新的调用，则同样要将与该新函数对应的一帧进栈，作为栈顶。函数一旦执行完毕，对应的栈帧便出栈，控制权交还给该函数的上层调用函数，并按照该帧中保存的返回地址确定程序中继续执行的位置（具体图解可以参照课本p154）</p>
+<h2 id="图"><a href="#图" class="headerlink" title="图"></a>图</h2><h3 id="0、基础知识-2"><a href="#0、基础知识-2" class="headerlink" title="0、基础知识"></a>0、基础知识</h3><p><strong>（1）端点和邻接点</strong></p>
+<p>在一个无向图中，如果存在一条边<code>(i,j)</code>，则称顶点<code>i</code>和顶点<code>j</code>为该边的两个端点，并称它们互为邻接点，即顶点<code>i</code>是顶点<code>j</code>的一个邻接点，顶点<code>j</code>也是<code>i</code>的一个邻接点。关联于相同两个端点的两条或两条以上的边称为多重边，在数据结构中讨论的图都是没有多重边的图</p>
+<p>在一个有向图中，如果存在一条有向边<code>&lt;i,j&gt;</code>，则称此边为顶点<code>i</code>的一条出边，同时也是顶点<code>j</code>的一条入边，<code>i</code>为此边的起始断电，<code>j</code>为此边的终止断电，<code>j</code>是<code>i</code>的出边邻接点，<code>i</code>是<code>j</code>的入边邻接点</p>
+<p><strong>（2）顶点的度、入度和出度</strong></p>
+<p>在无向图中，一个顶点所关联的边的数目成为该顶点的度，在有向图中，顶点的度又分为入度和出度，以顶点<code>j</code>为终点的边的数目称为该顶点的入度，以顶点<code>i</code>为起点的边数目称为该顶点的出度，一个顶点的入读和出度的和成为该顶点的度</p>
+<p><strong>一个图中所有的顶点的度之和等于边数的两倍</strong></p>
+<p><strong>（3）完全图</strong></p>
+<p>若无向图中每两个顶点之间都存在一条边，有向图中每两个顶点之间都存在着方向相反的两条边，则称此图为完全图</p>
+<p>无向完全图包含有<code>n(n-1)/2</code>条边，有向完全图包含有<code>n(n-1)</code>条边</p>
+<p><strong>（4）稠密图和稀疏图</strong></p>
+<p>当一个图接近完全图时，称为稠密图，相反当一个图含有较少的边数（小于nlog2n）则称之为稀疏图</p>
+<p><strong>（5）子图</strong></p>
+<p>设有两个图<code>G</code>=<code>(V,E)</code>和<code>G&#39;</code>=<code>(V&#39;,E&#39;)</code>，如果<code>V&#39;</code>是<code>V</code>的子集，且<code>E&#39;</code>是<code>E</code>的子集，则称<code>G&#39;</code>是<code>G</code>的子图</p>
+<p><em>图<code>G</code>的子图一定要是一个图，所以并非<code>V</code>的任何子集和<code>E</code>的任何子集都能构成<code>G</code>的子图，因为这两个子集不一定能构成一个图</em></p>
+<p><strong>（6）路径和路径长度</strong></p>
+<p>在一个图中，从顶点<code>i</code>到顶点<code>j</code>的一条路径是一个顶点序列<code>(i,i1,i2,···,im,j)</code>。路径长度是指一条路径上经过的边的数目，如果一条路径上除开始点和结束点可以相同外，其余顶点都不相同，则称该路径为简单路径</p>
+<p><strong>（7）回路或环</strong></p>
+<p>若一条路径上的开始点和结束点为同一个顶点，则此路径被称为回路或环，开始点与结束点相同的简单路径被称为简单回路或简单环</p>
+<p><strong>（8）连通、连通图和连通分量</strong></p>
+<p>在无向图中，如果两个顶点之间有路径，则称这两个顶点是连通的。如果途中的任意两个顶点是连通的，则称该图为连通图，否则为非连通图。无向图中的极大连通子图称为该图的连通分量，连通图的连通分量只有一个（本身），非连通图有多个连通分量</p>
+<p><strong>（9）强连通图和强连通分量</strong></p>
+<p>在有向图<code>G</code>中，若从顶点<code>i</code>到顶点<code>j</code>有路径，则称从顶点<code>i</code>到顶点<code>j</code>是连通的。若有向图中的任意两个顶点都联通，则称该图为强连通图。有向图的极大强连通子图称为该图的强连通分量，显然，强连通图只有一个强连通分量（本身），非强连通图有多个强连通分量</p>
+<p>在一个非强连通图中找强连通分量的方法为：</p>
+<p>①在图中找有向环</p>
+<p>②扩展该有向环：如果某个顶点到该环中的任意顶点有路径，并且该环中的任一顶点到这个顶点也有路径，则将该顶点加入</p>
+<p><strong>（10）权和网</strong></p>
+<p>图中的每一条边都可以附有一个对应的数值，这种与边相关的数值称为权。权可以表示从一个顶点到另一个顶点的距离或者花费的代价，边上带有权的图称为带权图，也称作网</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag"># 数据结构</a>
+          
+            <a href="/tags/%E7%AE%97%E6%B3%95/" rel="tag"># 算法</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/04/30/SQL%E6%B3%A8%E5%85%A5%E3%80%90%E5%9F%BA%E7%A1%80%E3%80%91/" rel="next" title="SQL注入【基础】">
+                <i class="fa fa-chevron-left"></i> SQL注入【基础】
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/05/01/%E8%BF%B7%E5%AE%AB%E9%97%AE%E9%A2%98/" rel="prev" title="迷宫问题">
+                迷宫问题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC81MzM3MC8yOTg0NA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%AA%E8%AE%BA"><span class="nav-text">绪论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0%E3%80%81%E5%9F%BA%E6%9C%AC%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="nav-text">0、基本知识点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E7%AE%80%E8%BF%B0%E6%95%B0%E6%8D%AE%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%85%83%E7%B4%A0%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB%E4%B8%8E%E5%8C%BA%E5%88%AB"><span class="nav-text">1、简述数据与数据元素之间的关系与区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E7%AE%80%E8%BF%B0%E6%95%B0%E6%8D%AE%E9%80%BB%E8%BE%91%E7%BB%93%E6%9E%84%E4%B8%8E%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-text">2、简述数据逻辑结构与存储结构的关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E7%AE%80%E8%BF%B0%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%AD%E7%9A%84%E8%BF%90%E7%AE%97%E6%8F%8F%E8%BF%B0%E5%92%8C%E8%BF%90%E7%AE%97%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%BC%82%E5%90%8C"><span class="nav-text">3、简述数据结构中的运算描述和运算实现的异同</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"><span class="nav-text">4、数据结构和数据类型有什么区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5%E3%80%81%E5%9C%A8C-C-%E4%B8%AD%E6%8F%90%E4%BE%9B%E4%BA%86%E5%BC%95%E7%94%A8%E8%BF%90%E7%AE%97%E7%AC%A6%EF%BC%8C%E7%AE%80%E8%BF%B0%E5%85%B6%E5%9C%A8%E7%AE%97%E6%B3%95%E6%8F%8F%E8%BF%B0%E4%B8%AD%E7%9A%84%E4%B8%BB%E8%A6%81%E4%BD%9C%E7%94%A8"><span class="nav-text">5、在C&#x2F;C++中提供了引用运算符，简述其在算法描述中的主要作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6%E3%80%81%E7%AE%97%E6%B3%95%E7%9A%84%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%8F%8D%E6%98%A0%E7%9A%84%E6%98%AF%E7%AE%97%E6%B3%95%E7%9A%84%E7%BB%9D%E5%AF%B9%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E5%90%97%EF%BC%9F%E4%B8%A4%E4%B8%AA%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E7%9B%B8%E5%90%8C%E7%9A%84%E7%AE%97%E6%B3%95%EF%BC%8C%E5%AF%B9%E4%BA%8E%E7%9B%B8%E5%90%8C%E7%9A%84%E9%97%AE%E9%A2%98%E8%A7%84%E6%A8%A1n%EF%BC%8C%E5%AE%83%E4%BB%AC%E7%9A%84%E7%BB%9D%E5%AF%B9%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E4%B8%80%E5%AE%9A%E7%9B%B8%E5%90%8C%E5%90%97%EF%BC%9F"><span class="nav-text">6、算法的时间复杂度反映的是算法的绝对执行时间吗？两个时间复杂度相同的算法，对于相同的问题规模n，它们的绝对执行时间一定相同吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E8%AF%AD%E5%8F%A5%E9%A2%91%E5%BA%A6%EF%BC%9F%E8%AF%AD%E5%8F%A5%E9%A2%91%E5%BA%A6%E4%B8%8E%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E6%9C%89%E4%BB%80%E4%B9%88%E8%81%94%E7%B3%BB%E4%B8%8E%E5%8C%BA%E5%88%AB"><span class="nav-text">7、什么是语句频度？语句频度与时间复杂度有什么联系与区别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E8%A1%A8"><span class="nav-text">线性表</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E7%AE%80%E8%BF%B0%E7%BA%BF%E6%80%A7%E8%A1%A8%E7%9A%84%E4%B8%A4%E7%A7%8D%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%E7%9A%84%E4%B8%BB%E8%A6%81%E7%89%B9%E7%82%B9"><span class="nav-text">1、简述线性表的两种存储结构的主要特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E7%AE%80%E8%BF%B0%E5%8D%95%E9%93%BE%E8%A1%A8%E8%AE%BE%E7%BD%AE%E5%A4%B4%E7%BB%93%E7%82%B9%E7%9A%84%E4%B8%BB%E8%A6%81%E4%BD%9C%E7%94%A8"><span class="nav-text">2、简述单链表设置头结点的主要作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E2%80%9C%E7%BA%BF%E6%80%A7%E8%A1%A8%E7%9A%84%E9%A1%BA%E5%BA%8F%E5%AD%98%E5%82%A8%E8%A1%A8%E7%A4%BA%E5%B1%9E%E4%BA%8E%E9%9D%99%E6%80%81%E7%BB%93%E6%9E%84%EF%BC%8C%E8%80%8C%E9%93%BE%E5%BC%8F%E5%AD%98%E5%82%A8%E8%A1%A8%E7%A4%BA%E5%B1%9E%E4%BA%8E%E5%8A%A8%E6%80%81%E7%BB%93%E6%9E%84%E2%80%9D%E8%BF%99%E5%8F%A5%E8%AF%9D%E6%98%AF%E5%90%A6%E6%AD%A3%E7%A1%AE"><span class="nav-text">3、“线性表的顺序存储表示属于静态结构，而链式存储表示属于动态结构”这句话是否正确</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97"><span class="nav-text">栈和队列</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0%E3%80%81%E5%9F%BA%E6%9C%AC%E7%9F%A5%E8%AF%86%E7%82%B9-1"><span class="nav-text">0、基本知识点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E5%9C%A8%E4%B8%80%E4%B8%AA%E7%AE%97%E6%B3%95%E4%B8%AD%E9%9C%80%E8%A6%81%E5%BB%BA%E7%AB%8B%E5%A4%9A%E4%B8%AA%E6%A0%88%E6%97%B6%E5%8F%AF%E4%BB%A5%E9%80%89%E7%94%A8%E4%BB%A5%E4%B8%8B%E4%B8%89%E7%A7%8D%E6%96%B9%E6%A1%88%E4%B9%8B%E4%B8%80%EF%BC%8C%E8%AF%95%E9%97%AE%E8%BF%99%E4%BA%9B%E6%96%B9%E6%A1%88%E7%9B%B8%E6%AF%94%E5%90%84%E6%9C%89%E4%BB%80%E4%B9%88%E4%BC%98%E7%BC%BA%E7%82%B9%EF%BC%9F"><span class="nav-text">1、在一个算法中需要建立多个栈时可以选用以下三种方案之一，试问这些方案相比各有什么优缺点？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E5%9C%A8%E4%BB%A5%E4%B8%8B%E5%87%A0%E7%A7%8D%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%E4%B8%AD%E5%93%AA%E4%B8%AA%E6%9C%80%E9%80%82%E5%90%88%E7%94%A8%E4%BD%9C%E9%93%BE%E6%A0%88%EF%BC%9F"><span class="nav-text">2、在以下几种存储结构中哪个最适合用作链栈？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E9%98%9F%E5%88%97%E7%9A%84%E4%B8%8A%E6%BA%A2%E7%8E%B0%E8%B1%A1%E5%92%8C%E5%81%87%E6%BA%A2%E5%87%BA%E7%8E%B0%E8%B1%A1%EF%BC%8C%E8%A7%A3%E5%86%B3%E5%81%87%E6%BA%A2%E5%87%BA%E6%9C%89%E4%BB%80%E4%B9%88%E6%96%B9%E6%B3%95%EF%BC%9F"><span class="nav-text">3、什么是队列的上溢现象和假溢出现象，解决假溢出有什么方法？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%B2"><span class="nav-text">串</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0%E3%80%81%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="nav-text">0、基础知识</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E4%B8%B2%E6%98%AF%E4%B8%80%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%9A%84%E7%BA%BF%E6%80%A7%E8%A1%A8%EF%BC%8C%E8%AF%B7%E4%BB%8E%E5%AD%98%E5%82%A8%E5%92%8C%E8%BF%90%E7%AE%97%E4%B8%A4%E6%96%B9%E9%9D%A2%E5%88%86%E6%9E%90%E5%AE%83%E7%9A%84%E7%89%B9%E6%AE%8A%E4%B9%8B%E5%A4%84"><span class="nav-text">1、串是一种特殊的线性表，请从存储和运算两方面分析它的特殊之处</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E5%9C%A8%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8D%E4%B8%ADBF%E7%AE%97%E6%B3%95%E6%98%AF%E6%9C%89%E5%9B%9E%E6%BA%AF%E7%AE%97%E6%B3%95%EF%BC%8C%E8%80%8CKMP%E6%98%AF%E6%97%A0%E5%9B%9E%E6%BA%AF%E7%AE%97%E6%B3%95%EF%BC%9F"><span class="nav-text">2、为什么在模式匹配中BF算法是有回溯算法，而KMP是无回溯算法？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E5%9C%A8KMP%E7%AE%97%E6%B3%95%E4%B8%AD%E8%AE%A1%E7%AE%97%E6%A8%A1%E5%BC%8F%E4%B8%B2%E7%9A%84next%E5%80%BC%E6%97%B6%EF%BC%8C%E5%9C%A8j-0%E6%97%B6%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%BD%AEnext-0-1"><span class="nav-text">3、在KMP算法中计算模式串的next值时，在j&#x3D;0时，为什么要置next[0]&#x3D;-1</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%92%E5%BD%92"><span class="nav-text">递归</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0%E3%80%81%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-1"><span class="nav-text">0、基础知识</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E6%A0%88%E5%B8%A7"><span class="nav-text">1、栈帧</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%BE"><span class="nav-text">图</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0%E3%80%81%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-2"><span class="nav-text">0、基础知识</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zhe</span>
+
+  
+</div>
+<!--
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+-->
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three-waves.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":180,"height":360},"mobile":{"show":true},"log":false});</script></body>
+</html>

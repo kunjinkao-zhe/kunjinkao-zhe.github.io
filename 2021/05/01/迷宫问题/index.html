@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/dragon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/dragon_16.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="数据结构,图,栈,队列,递归," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="迷宫问题是数据结构以及算法领域之中的一个非常经典的问题 该问题的描述为：给出一个m*n的二维整形数组作为迷宫，其中边框的值为1，迷宫中可以走的路径为0，障碍物为1，另外使用坐标来标记起点和终点的位置（如下图所示便是一个8*8的迷宫） 123456789101112int mg[10][10]&#x3D;&amp;#123;    &amp;#123;1,1,1,1,1,1,1,1,1,1&amp;#125;,    &amp;#123;1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="迷宫问题">
+<meta property="og:url" content="http://example.com/2021/05/01/%E8%BF%B7%E5%AE%AB%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="zhe&#39;s blog">
+<meta property="og:description" content="迷宫问题是数据结构以及算法领域之中的一个非常经典的问题 该问题的描述为：给出一个m*n的二维整形数组作为迷宫，其中边框的值为1，迷宫中可以走的路径为0，障碍物为1，另外使用坐标来标记起点和终点的位置（如下图所示便是一个8*8的迷宫） 123456789101112int mg[10][10]&#x3D;&amp;#123;    &amp;#123;1,1,1,1,1,1,1,1,1,1&amp;#125;,    &amp;#123;1">
+<meta property="og:locale">
+<meta property="article:published_time" content="2021-05-01T01:41:00.000Z">
+<meta property="article:modified_time" content="2021-05-01T16:29:36.008Z">
+<meta property="article:author" content="zhe">
+<meta property="article:tag" content="数据结构">
+<meta property="article:tag" content="图">
+<meta property="article:tag" content="栈">
+<meta property="article:tag" content="队列">
+<meta property="article:tag" content="递归">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2021/05/01/迷宫问题/"/>
+
+
+
+
+
+  <title>迷宫问题 | zhe's blog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">zhe's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">nice 2 meet u</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/05/01/%E8%BF%B7%E5%AE%AB%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="zhe's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">迷宫问题</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-05-01T09:41:00+08:00">
+                2021-05-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%AE%97%E6%B3%95/bug%E5%82%A8%E8%97%8F%E5%AE%A4/" itemprop="url" rel="index">
+                    <span itemprop="name">bug储藏室</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>迷宫问题是数据结构以及算法领域之中的一个非常经典的问题</p>
+<p><strong>该问题的描述为：给出一个m*n的二维整形数组作为迷宫，其中边框的值为<code>1</code>，迷宫中可以走的路径为<code>0</code>，障碍物为<code>1</code>，另外使用坐标来标记起点和终点的位置（如下图所示便是一个8*8的迷宫）</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> mg[<span class="number">10</span>][<span class="number">10</span>]=&#123;</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以采用多种思路来解决该问题：</p>
+<h2 id="1、使用栈来进行深度优先搜索找到一条路径"><a href="#1、使用栈来进行深度优先搜索找到一条路径" class="headerlink" title="1、使用栈来进行深度优先搜索找到一条路径"></a>1、使用栈来进行深度优先搜索找到一条路径</h2><h3 id="（1）存放迷宫的数据结构"><a href="#（1）存放迷宫的数据结构" class="headerlink" title="（1）存放迷宫的数据结构"></a>（1）存放迷宫的数据结构</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> i; <span class="comment">//该方块的行号</span></span><br><span class="line">    <span class="keyword">int</span> j; <span class="comment">//该方块的列号</span></span><br><span class="line">    <span class="keyword">int</span> di; <span class="comment">//对于该方块来说的下一个可走方块的方位号（0-&gt;上1-&gt;右2-&gt;下3-&gt;左）</span></span><br><span class="line">&#125;box;</span><br><span class="line"><span class="keyword">typedef</span> box ElemType;</span><br></pre></td></tr></table></figure>
+
+<p>首先定义一个结构体代表迷宫中的某个格子，其中包括了该格子的行号、列号以及在研究问题的过程中下一个需要研究的方位代号</p>
+<p>因为用栈来进行解决问题，所以还需要定义一个存放格子的栈：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">    box data[MAX_STACK];</span><br><span class="line">    <span class="keyword">int</span> top; <span class="comment">//栈顶</span></span><br><span class="line">&#125;SqStack;</span><br></pre></td></tr></table></figure>
+
+<h3 id="（2）函数主体"><a href="#（2）函数主体" class="headerlink" title="（2）函数主体"></a>（2）函数主体</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">maze1</span><span class="params">(<span class="keyword">int</span> xi,<span class="keyword">int</span> yi,<span class="keyword">int</span> xe,<span class="keyword">int</span> ye)</span></span>&#123;  <span class="comment">//使用栈进行深度优先搜索找迷宫的一条路径，(xi,yi)为起点，(xe,ye)为终点</span></span><br><span class="line">    box path[MAX_STACK];</span><br><span class="line">    box e;</span><br><span class="line">    <span class="keyword">int</span> i,j,di,i1,j1,k;</span><br><span class="line">    <span class="keyword">int</span> find;</span><br><span class="line">    SqStack *st; <span class="comment">//定义栈</span></span><br><span class="line">    <span class="built_in">Stack_Ini</span>(st); <span class="comment">//初始化栈</span></span><br><span class="line">    e.i=xi;</span><br><span class="line">    e.j=yi;</span><br><span class="line">    e.di=<span class="number">-1</span>;</span><br><span class="line">    <span class="comment">/*首先建立起点格子*/</span></span><br><span class="line">    <span class="built_in">Stack_Push</span>(st,e); <span class="comment">//将起点格子入栈</span></span><br><span class="line">    mg[xi][yi]=<span class="number">-1</span>; <span class="comment">//起点是第一个走过的方块</span></span><br><span class="line">    <span class="keyword">while</span>(<span class="built_in">Stack_Empty</span>(st)!=<span class="number">1</span>)&#123; <span class="comment">//栈不为空</span></span><br><span class="line">        <span class="built_in">Stack_GetTop</span>(st,e); <span class="comment">//将栈顶元素取出</span></span><br><span class="line">        i=e.i; <span class="comment">//将i设置为栈顶格子的x坐标</span></span><br><span class="line">        j=e.j; <span class="comment">//将j设置为栈顶格子的y坐标</span></span><br><span class="line">        di=e.di; <span class="comment">//di设置为栈顶格子的当前未走过的方向</span></span><br><span class="line">        <span class="keyword">if</span>(i==xe &amp;&amp; j==xe)&#123; <span class="comment">//找到了出口</span></span><br><span class="line">            <span class="built_in">output</span>(); <span class="comment">//将路径输出</span></span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;  </span><br><span class="line">        find=<span class="number">0</span>; <span class="comment">//将找到设置为负</span></span><br><span class="line">        <span class="keyword">while</span>(di&lt;<span class="number">4</span> &amp;&amp; !find)&#123; <span class="comment">//寻找目前格子的相邻可走方块</span></span><br><span class="line">            di++;</span><br><span class="line">            <span class="built_in"><span class="keyword">switch</span></span>(di)&#123;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">0</span>:i1=i<span class="number">-1</span>;j1=j;<span class="keyword">break</span>; <span class="comment">//向上走</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">1</span>:i1=i;j1=j+<span class="number">1</span>;<span class="keyword">break</span>; <span class="comment">//向右走</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">2</span>:i1=i+<span class="number">1</span>;j1=j;<span class="keyword">break</span>; <span class="comment">//向下走</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">3</span>:i1=i;j1=j<span class="number">-1</span>;<span class="keyword">break</span>; <span class="comment">//向左走</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(mg[i1][j1]==<span class="number">0</span>) <span class="comment">//如果找到另一个可走方块</span></span><br><span class="line">                find=<span class="number">1</span>; <span class="comment">//找到设置为1</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(find)&#123;</span><br><span class="line">            st-&gt;data[st-&gt;top].di=di; <span class="comment">//将目前的方向设置为栈顶元素的已经走过的方向</span></span><br><span class="line">            e.i=i1;</span><br><span class="line">            e.j=j1;</span><br><span class="line">            e.di=<span class="number">-1</span>; <span class="comment">//新的结点的已经走过的方向指标，初始化为-1，即四个方向都还没涉足</span></span><br><span class="line">            <span class="built_in">Stack_Push</span>(st,e); <span class="comment">//将新的结点入栈</span></span><br><span class="line">            mg[i1][j1]=<span class="number">-1</span>; <span class="comment">//将迷宫中的该结点设置为走过</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span>&#123; <span class="comment">//走到死胡同了</span></span><br><span class="line">            <span class="built_in">Stack_Pop</span>(st,e); <span class="comment">//出栈</span></span><br><span class="line">            mg[e.i][e.j]=<span class="number">0</span>; <span class="comment">//重置当前格子为没走过</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>该算法可以这么理解，按照一定的顺序（如上右下左）对每个格子进行检查，当某个格子的某个方向可以前进，就往那个方向前进，并且用一个画笔将该格子涂上颜色，如果说来到了死胡同（剩下还没有经历过的方向要不是已经上了颜色（走过了），要不就是障碍物），那么就把当前格子的颜色擦掉，退一格，研究其前一个格子的下一个方向，如果走到了终点，则将迷宫打印出来</p>
+<p>打印迷宫可以使用一个output函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">output</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">10</span>;i++)&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;<span class="number">10</span>;j++)&#123;</span><br><span class="line">            <span class="built_in"><span class="keyword">switch</span></span>(mg[i][j])&#123;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">1</span>:<span class="built_in">printf</span>(<span class="string">&quot;■&quot;</span>);<span class="keyword">break</span>;<span class="comment">//障碍物</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">0</span>:<span class="built_in">printf</span>(<span class="string">&quot;  &quot;</span>);<span class="keyword">break</span>;<span class="comment">//空地</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">-1</span>:<span class="built_in">printf</span>(<span class="string">&quot;●&quot;</span>);<span class="keyword">break</span>;<span class="comment">//路径</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为迷宫在此时是以全局变量的形式进行保存，所以output函数不需要传参</p>
+<h3 id="（3）有关栈的基础函数"><a href="#（3）有关栈的基础函数" class="headerlink" title="（3）有关栈的基础函数"></a>（3）有关栈的基础函数</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Stack_Ini</span><span class="params">(SqStack *&amp;s)</span></span>&#123; <span class="comment">//初始化栈</span></span><br><span class="line">    s=(SqStack*)<span class="built_in">malloc</span>(<span class="built_in"><span class="keyword">sizeof</span></span>(SqStack));</span><br><span class="line">    s-&gt;top=<span class="number">-1</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Stack_Destory</span><span class="params">(SqStack *&amp;s)</span></span>&#123; <span class="comment">//销栈</span></span><br><span class="line">    <span class="built_in">free</span>(s);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">Stack_Empty</span><span class="params">(SqStack *&amp;s)</span></span>&#123; <span class="comment">//判断栈是否为空</span></span><br><span class="line">    <span class="keyword">return</span> (s-&gt;top==<span class="number">-1</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Stack_Push</span><span class="params">(SqStack *&amp;s,ElemType e)</span></span>&#123; <span class="comment">//进栈</span></span><br><span class="line">    <span class="keyword">if</span>(s-&gt;top&gt;=MAX_STACK<span class="number">-1</span>) <span class="comment">//栈满</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    s-&gt;top++;</span><br><span class="line">    s-&gt;data[s-&gt;top]=e;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Stack_Pop</span><span class="params">(SqStack *&amp;s,ElemType &amp;e)</span></span>&#123; <span class="comment">//出栈</span></span><br><span class="line">    <span class="keyword">if</span>(s-&gt;top==<span class="number">-1</span>) <span class="comment">//栈空</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    e=s-&gt;data[s-&gt;top];</span><br><span class="line">    s-&gt;top--;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Stack_GetTop</span><span class="params">(SqStack *&amp;s,ElemType &amp;e)</span></span>&#123; <span class="comment">//取栈顶元素但是不出栈</span></span><br><span class="line">    <span class="keyword">if</span>(s-&gt;top==<span class="number">-1</span>) <span class="comment">//栈空</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    e=s-&gt;data[s-&gt;top]; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2、使用队列来进行广度优先搜索找到最优路径"><a href="#2、使用队列来进行广度优先搜索找到最优路径" class="headerlink" title="2、使用队列来进行广度优先搜索找到最优路径"></a>2、使用队列来进行广度优先搜索找到最优路径</h2><h3 id="（1）存放迷宫的数据结构-1"><a href="#（1）存放迷宫的数据结构-1" class="headerlink" title="（1）存放迷宫的数据结构"></a>（1）存放迷宫的数据结构</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> i; <span class="comment">//该方块的行号</span></span><br><span class="line">    <span class="keyword">int</span> j; <span class="comment">//该方块的列号</span></span><br><span class="line">    <span class="keyword">int</span> di; <span class="comment">//该方块的前一个方块在队列中的位置</span></span><br><span class="line">&#125;box;</span><br><span class="line"><span class="keyword">typedef</span> box ElemType;</span><br></pre></td></tr></table></figure>
+
+<p>如上方代码块所示，为存放迷宫的一个格子的数据结构体，与前一个思路不同的是，这里的<code>di</code>存放的实际是该方块的前一个方块在队列中的位置，对于每次循环，从队列头拿出一个格子，然后将与之相邻并且可走的格子入队列，循环往复，当某个格子恰好为终点，一路逆向寻找其<code>di</code>值直到找到终点，此时的路径便是最短路径</p>
+<p>在该问题中，因为当元素出队列之后，我们仍然需要该元素的信息，所以不能使用环形队列，如下方代码块所示：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">    box data[MAX_STACK];</span><br><span class="line">    <span class="keyword">int</span> front,rear;</span><br><span class="line">&#125;SqQuene;</span><br></pre></td></tr></table></figure>
+
+<h3 id="（2）函数主体-1"><a href="#（2）函数主体-1" class="headerlink" title="（2）函数主体"></a>（2）函数主体</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">maze2</span><span class="params">(<span class="keyword">int</span> xi,<span class="keyword">int</span> yi,<span class="keyword">int</span> xe,<span class="keyword">int</span> ye)</span></span>&#123; <span class="comment">//使用队列来进行广度优先搜索找到最优路径，(xi,yi)为起点，(xe,ye)为终点</span></span><br><span class="line">    box e;</span><br><span class="line">    <span class="keyword">int</span> i,j,d1,i1,j1;</span><br><span class="line">    SqQuene *qu;</span><br><span class="line">    <span class="built_in">Quene_Ini</span>(qu); <span class="comment">//初始化队列</span></span><br><span class="line">    e.i=xi;e.j=yi;e.di=<span class="number">-1</span>; <span class="comment">//此时的di其实是该方块的前一个方块在队列中的位置</span></span><br><span class="line">    <span class="comment">/*此时的e是迷宫的起点*/</span></span><br><span class="line">    <span class="built_in">Quene_Push</span>(qu,e); <span class="comment">//将起点入队列</span></span><br><span class="line">    mg[xi][yi]=<span class="number">-1</span>; <span class="comment">//将起点设置为已走过</span></span><br><span class="line">    <span class="keyword">while</span>(<span class="built_in">Quene_Empty</span>(qu)!=<span class="number">1</span>)&#123; <span class="comment">//队列不空时循环</span></span><br><span class="line">        <span class="built_in">Quene_Pop</span>(qu,e); <span class="comment">//出队列</span></span><br><span class="line">        i=e.i;</span><br><span class="line">        j=e.j;</span><br><span class="line">        <span class="keyword">if</span>(i==xe &amp;&amp; j==ye)&#123; <span class="comment">//找到了出口</span></span><br><span class="line">            <span class="built_in">change</span>(qu); <span class="comment">//对迷宫进行小小的处理</span></span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(d1=<span class="number">0</span>;d1&lt;<span class="number">4</span>;d1++)&#123;</span><br><span class="line">            <span class="built_in"><span class="keyword">switch</span></span>(d1)&#123;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">0</span>:i1=i<span class="number">-1</span>;j1=j;<span class="keyword">break</span>; <span class="comment">//向上</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">1</span>:i1=i;j1=j+<span class="number">1</span>;<span class="keyword">break</span>; <span class="comment">//向右</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">2</span>:i1=i+<span class="number">1</span>;j1=j;<span class="keyword">break</span>; <span class="comment">//向下</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">3</span>:i1=i;j1=j<span class="number">-1</span>;<span class="keyword">break</span>; <span class="comment">//向左</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(mg[i1][j1]==<span class="number">0</span>)&#123; <span class="comment">//没走过并且不是障碍</span></span><br><span class="line">                e.i=i1;</span><br><span class="line">                e.j=j1;</span><br><span class="line">                e.di=qu-&gt;front; <span class="comment">//指向路径中上一个方块的下标</span></span><br><span class="line">                <span class="built_in">Quene_Push</span>(qu,e); <span class="comment">//入队列</span></span><br><span class="line">                mg[i1][j1]=<span class="number">-1</span>; <span class="comment">//设置为已经走过</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">Quene_Destroy</span>(qu);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以这样通俗地理解，假设一个会分身的忍者从起点开始寻找终点，他不用走，而是往自己的相邻格子处召唤一个分身，分身也可以在与自己相邻的格子召唤分身，忍者一层层的分身如同波一样扩散开来，每个分身只需要记住自己的位置，自己是从哪个地方分出来的，如果有一个分身碰到了终点，然后便将其逆向收回，便得到了最短路径</p>
+<p>所以我们还要做的事，便是找到这条忍者分身逆向一层层收回的路径，回到这个问题中，便是通过<code>di</code>来索引到路径中每个方块的前一个方块，并且标记之，最后标记到的路径，便是所求路径：</p>
+<p>需要引入函数<code>change()</code>来对迷宫做出处理，代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">change</span><span class="params">(SqQuene *qu)</span></span>&#123; <span class="comment">//对以qu结点为终点的路径的对应队列进行处理</span></span><br><span class="line">    box e;</span><br><span class="line">    e=qu-&gt;data[qu-&gt;front];</span><br><span class="line">    <span class="keyword">do</span>&#123;</span><br><span class="line">        mg[e.i][e.j]=<span class="number">2</span>; <span class="comment">//将对应路径上的格子设置为2</span></span><br><span class="line">        e=qu-&gt;data[e.di];</span><br><span class="line">    &#125;<span class="keyword">while</span>(e.di!=<span class="number">-1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>与此同时，<code>output</code>函数也需要做出一些改动：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">output</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">10</span>;i++)&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;<span class="number">10</span>;j++)&#123;</span><br><span class="line">            <span class="built_in"><span class="keyword">switch</span></span>(mg[i][j])&#123;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">1</span>:<span class="built_in">printf</span>(<span class="string">&quot;■&quot;</span>);<span class="keyword">break</span>;<span class="comment">//障碍物</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">0</span>:<span class="built_in">printf</span>(<span class="string">&quot;  &quot;</span>);<span class="keyword">break</span>;<span class="comment">//空地</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">2</span>:<span class="built_in">printf</span>(<span class="string">&quot;●&quot;</span>);<span class="keyword">break</span>;<span class="comment">//路径</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="（3）有关队列的基础函数"><a href="#（3）有关队列的基础函数" class="headerlink" title="（3）有关队列的基础函数"></a>（3）有关队列的基础函数</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Quene_Ini</span><span class="params">(SqQuene *&amp;Q)</span></span>&#123; <span class="comment">//初始化一个队列</span></span><br><span class="line">    Q=(SqQuene*)<span class="built_in">malloc</span>(<span class="built_in"><span class="keyword">sizeof</span></span>(SqQuene));</span><br><span class="line">    Q-&gt;front=Q-&gt;rear=<span class="number">-1</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Quene_Destroy</span><span class="params">(SqQuene *&amp;Q)</span></span>&#123; <span class="comment">//销毁一个队列</span></span><br><span class="line">    <span class="built_in">free</span>(Q);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">Quene_Empty</span><span class="params">(SqQuene *&amp;Q)</span></span>&#123; <span class="comment">//判断一个队列是否为空</span></span><br><span class="line">    <span class="keyword">return</span>(Q-&gt;front==Q-&gt;rear);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Quene_Push</span><span class="params">(SqQuene *&amp;Q, ElemType e)</span></span>&#123; <span class="comment">//进队列</span></span><br><span class="line">    <span class="keyword">if</span>(Q-&gt;rear&gt;=MAX_STACK<span class="number">-1</span>) <span class="comment">//队满上溢出</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    Q-&gt;rear++;</span><br><span class="line">    Q-&gt;data[Q-&gt;rear]=e;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Quene_Pop</span><span class="params">(SqQuene *&amp;Q, ElemType &amp;e)</span></span>&#123; <span class="comment">//出队列</span></span><br><span class="line">    <span class="keyword">if</span>(Q-&gt;front==Q-&gt;rear) <span class="comment">//队空下溢出</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    Q-&gt;front++;</span><br><span class="line">    e=Q-&gt;data[Q-&gt;front];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag"># 数据结构</a>
+          
+            <a href="/tags/%E5%9B%BE/" rel="tag"># 图</a>
+          
+            <a href="/tags/%E6%A0%88/" rel="tag"># 栈</a>
+          
+            <a href="/tags/%E9%98%9F%E5%88%97/" rel="tag"># 队列</a>
+          
+            <a href="/tags/%E9%80%92%E5%BD%92/" rel="tag"># 递归</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/05/01/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="next" title="数据结构笔记">
+                <i class="fa fa-chevron-left"></i> 数据结构笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/05/02/%E7%BA%BF%E7%B4%A2%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%8E%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/" rel="prev" title="线索二叉树与哈夫曼树">
+                线索二叉树与哈夫曼树 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC81MzM3MC8yOTg0NA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1%E3%80%81%E4%BD%BF%E7%94%A8%E6%A0%88%E6%9D%A5%E8%BF%9B%E8%A1%8C%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2%E6%89%BE%E5%88%B0%E4%B8%80%E6%9D%A1%E8%B7%AF%E5%BE%84"><span class="nav-text">1、使用栈来进行深度优先搜索找到一条路径</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E5%AD%98%E6%94%BE%E8%BF%B7%E5%AE%AB%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-text">（1）存放迷宫的数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E5%87%BD%E6%95%B0%E4%B8%BB%E4%BD%93"><span class="nav-text">（2）函数主体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%E6%9C%89%E5%85%B3%E6%A0%88%E7%9A%84%E5%9F%BA%E7%A1%80%E5%87%BD%E6%95%B0"><span class="nav-text">（3）有关栈的基础函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%E3%80%81%E4%BD%BF%E7%94%A8%E9%98%9F%E5%88%97%E6%9D%A5%E8%BF%9B%E8%A1%8C%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2%E6%89%BE%E5%88%B0%E6%9C%80%E4%BC%98%E8%B7%AF%E5%BE%84"><span class="nav-text">2、使用队列来进行广度优先搜索找到最优路径</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E5%AD%98%E6%94%BE%E8%BF%B7%E5%AE%AB%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1"><span class="nav-text">（1）存放迷宫的数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E5%87%BD%E6%95%B0%E4%B8%BB%E4%BD%93-1"><span class="nav-text">（2）函数主体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%E6%9C%89%E5%85%B3%E9%98%9F%E5%88%97%E7%9A%84%E5%9F%BA%E7%A1%80%E5%87%BD%E6%95%B0"><span class="nav-text">（3）有关队列的基础函数</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zhe</span>
+
+  
+</div>
+<!--
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+-->
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three-waves.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":180,"height":360},"mobile":{"show":true},"log":false});</script></body>
+</html>

